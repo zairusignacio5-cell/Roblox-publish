@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Place Script Editor</title>
+<style>
+  :root { --bg:#f5f6f8; --card:#fff; --text:#16181d; --muted:#666d7a; --accent:#2563eb; --border:#d8dce3; --err:#c62828; --ok:#1b7f3b; --code:#f0f2f5; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0f1115; --card:#181b21; --text:#eceef2; --muted:#9aa1ad; --accent:#4f8cff; --border:#2c313a; --err:#ff6b6b; --ok:#4cd07d; --code:#12141a; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.4 system-ui,sans-serif; padding:16px; }
+  main { max-width:640px; margin:0 auto; display:flex; flex-direction:column; gap:14px; }
+  h1 { font-size:1.3rem; margin:8px 0 0; }
+  h2 { font-size:1rem; margin:0 0 10px; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px; }
+  label { display:block; font-size:.85rem; color:var(--muted); margin:12px 0 6px; }
+  label:first-child { margin-top:0; }
+  input, select, textarea { width:100%; padding:12px; font-size:16px; border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text); }
+  textarea { font:13px/1.45 ui-monospace,Menlo,Consolas,monospace; background:var(--code); min-height:55vh; white-space:pre; overflow:auto; resize:vertical; tab-size:4; }
+  button { padding:12px 14px; font-size:1rem; font-weight:600; border:0; border-radius:10px; background:var(--accent); color:#fff; }
+  button.sec { background:transparent; color:var(--accent); border:1px solid var(--border); }
+  button:disabled { opacity:.5; }
+  .row { display:flex; gap:8px; margin-top:10px; }
+  .row > * { flex:1; }
+  .check { display:flex; gap:10px; align-items:flex-start; margin-top:14px; font-size:.9rem; }
+  .check input { width:auto; margin-top:3px; }
+  .msg { margin-top:10px; font-size:.9rem; word-break:break-word; min-height:1.2em; }
+  .err { color:var(--err); } .ok { color:var(--ok); }
+  .item { padding:10px 12px; border:1px solid var(--border); border-radius:10px; margin-top:8px; }
+  .item b { display:block; word-break:break-all; }
+  .item small { color:var(--muted); word-break:break-all; }
+  .tag { display:inline-block; font-size:.7rem; padding:1px 6px; border-radius:6px; background:var(--code); color:var(--muted); margin-left:6px; vertical-align:middle; }
+  .path { font-size:.85rem; color:var(--muted); word-break:break-all; margin-bottom:10px; }
+  small.note { color:var(--muted); display:block; margin-top:10px; }
+  .hide { display:none; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Place Script Editor</h1>
+
+  <section class="card" id="up">
+    <h2>1. Open your place</h2>
+    <input id="file" type="file" accept=".rbxl">
+    <div class="msg" id="upmsg"></div>
+    <small class="note">Binary <b>.rbxl</b> files only. The file is kept in server memory for up to 1 hour while you edit, then discarded.</small>
+  </section>
+
+  <section class="card hide" id="list">
+    <h2>2. Pick a script</h2>
+    <input id="q" type="search" placeholder="Search by name or path" autocomplete="off">
+    <div class="check"><input type="checkbox" id="nobk" checked><span>Hide backup copies (paths containing "Backup")</span></div>
+    <div id="results"></div>
+  </section>
+
+  <section class="card hide" id="ed">
+    <div class="row" style="margin-top:0">
+      <button class="sec" id="back">← Scripts</button>
+      <button id="save" disabled>Save change</button>
+    </div>
+    <div class="path" id="curpath" style="margin-top:12px"></div>
+    <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off"></textarea>
+    <label>Find &amp; replace</label>
+    <input id="find" placeholder="Find" autocapitalize="off" autocorrect="off">
+    <input id="repl" placeholder="Replace with" autocapitalize="off" autocorrect="off" style="margin-top:8px">
+    <div class="row">
+      <button class="sec" id="next">Find next</button>
+      <button class="sec" id="repall">Replace all</button>
+    </div>
+    <div class="msg" id="edmsg"></div>
+  </section>
+
+  <section class="card hide" id="pub">
+    <h2>3. Publish</h2>
+    <div class="msg" id="changed" style="margin-top:0"></div>
+    <label for="key">Open Cloud API key</label>
+    <input id="key" type="password" autocomplete="off">
+    <label for="uni">Universe ID</label>
+    <input id="uni" inputmode="numeric" autocomplete="off">
+    <label for="place">Place ID</label>
+    <input id="place" inputmode="numeric" autocomplete="off">
+    <label for="vt">Action</label>
+    <select id="vt">
+      <option value="Saved">Save only (not live)</option>
+      <option value="Published">Publish (goes live)</option>
+    </select>
+    <div class="check"><input type="checkbox" id="ok"><span>I understand publishing overwrites the current version of this place.</span></div>
+    <div class="row">
+      <button id="go">Upload</button>
+      <button class="sec" id="dl">Download file</button>
+    </div>
+    <div class="msg" id="pubmsg"></div>
+    <small class="note">Your key goes only to this site's server, which forwards it to Roblox and does not store it.</small>
+  </section>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+let S = null, scripts = [], cur = null, orig = "";
+const say = (el, text, cls) => { el.className = "msg " + (cls || ""); el.textContent = text; };
+const show = (id, on) => $(id).classList.toggle("hide", !on);
+const store = {
+  get(k) { try { return localStorage.getItem(k) || ""; } catch { return ""; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} }
+};
+$("uni").value = store.get("uni"); $("place").value = store.get("place");
+
+async function call(url, opts) {
+  const r = await fetch(url, opts);
+  let d = null; try { d = await r.json(); } catch {}
+  if (!r.ok) throw new Error((d && d.error) || ("Request failed (" + r.status + ")"));
+  return d;
+}
+
+/* 1. upload */
+$("file").addEventListener("change", async () => {
+  const f = $("file").files[0]; if (!f) return;
+  if (!f.name.toLowerCase().endsWith(".rbxl")) return say($("upmsg"), "Please pick a .rbxl file.", "err");
+  say($("upmsg"), "Reading place… this can take up to a minute for big places.");
+  try {
+    const d = await call("/api/scan", { method: "POST", headers: { "Content-Type": "application/octet-stream" }, body: f });
+    S = d.session; scripts = d.scripts; cur = null;
+    say($("upmsg"), "Found " + scripts.length + " scripts in " + f.name, "ok");
+    show("list", true); show("pub", true); show("ed", false);
+    $("changed").textContent = "No changes yet.";
+    render();
+  } catch (e) { say($("upmsg"), e.message, "err"); }
+});
+
+/* 2. list */
+function render() {
+  const words = $("q").value.toLowerCase().split(/\s+/).filter(Boolean);
+  const nobk = $("nobk").checked;
+  const hits = scripts.filter(s => {
+    const p = s.path.toLowerCase();
+    return (!nobk || !p.includes("backup")) && words.every(w => p.includes(w));
+  });
+  const box = $("results"); box.textContent = "";
+  hits.slice(0, 40).forEach(s => {
+    const div = document.createElement("div"); div.className = "item";
+    const name = s.path.split("/").pop();
+    const b = document.createElement("b"); b.textContent = name;
+    const tag = document.createElement("span"); tag.className = "tag"; tag.textContent = s.cls;
+    b.appendChild(tag);
+    const sm = document.createElement("small"); sm.textContent = s.path + " · " + s.len.toLocaleString() + " chars";
+    div.append(b, sm);
+    div.onclick = () => openScript(s);
+    box.appendChild(div);
+  });
+  const more = document.createElement("small"); more.className = "note";
+  more.textContent = hits.length > 40 ? hits.length + " matches. Showing 40, type more to narrow." : hits.length + " matches.";
+  box.appendChild(more);
+}
+$("q").addEventListener("input", render);
+$("nobk").addEventListener("change", render);
+
+/* 3. edit */
+async function openScript(s) {
+  try {
+    const d = await call("/api/script?s=" + S + "&id=" + s.id);
+    cur = s; orig = d.source;
+    $("code").value = d.source;
+    $("curpath").textContent = s.path + " (" + s.cls + ")";
+    $("save").disabled = true; say($("edmsg"), "");
+    show("list", false); show("ed", true);
+    window.scrollTo(0, 0);
+  } catch (e) { say($("upmsg"), e.message, "err"); }
+}
+const dirty = () => cur && $("code").value !== orig;
+$("code").addEventListener("input", () => { $("save").disabled = !dirty(); });
+$("back").onclick = () => {
+  if (dirty() && !confirm("You have unsaved changes. Leave without saving?")) return;
+  show("ed", false); show("list", true); cur = null;
+};
+$("save").onclick = async () => {
+  $("save").disabled = true; say($("edmsg"), "Saving…");
+  try {
+    const d = await call("/api/script?s=" + S + "&id=" + cur.id, { method: "POST", headers: { "Content-Type": "text/plain" }, body: $("code").value });
+    orig = $("code").value; cur.len = d.len;
+    say($("edmsg"), "Saved. Not published yet, use step 3 below.", "ok");
+    $("changed").textContent = d.changed + " script" + (d.changed === 1 ? "" : "s") + " changed and ready to upload.";
+  } catch (e) { $("save").disabled = false; say($("edmsg"), e.message, "err"); }
+};
+$("next").onclick = () => {
+  const t = $("code"), q = $("find").value; if (!q) return;
+  let i = t.value.indexOf(q, t.selectionEnd);
+  if (i < 0) { i = t.value.indexOf(q); if (i < 0) return say($("edmsg"), "Not found.", "err"); }
+  t.focus(); t.setSelectionRange(i, i + q.length);
+  const line = t.value.slice(0, i).split("\n").length;
+  t.scrollTop = Math.max(0, (line - 4) * 19);
+  say($("edmsg"), "Line " + line);
+};
+$("repall").onclick = () => {
+  const q = $("find").value; if (!q) return;
+  const parts = $("code").value.split(q), n = parts.length - 1;
+  if (!n) return say($("edmsg"), "Not found.", "err");
+  $("code").value = parts.join($("repl").value);
+  $("save").disabled = !dirty();
+  say($("edmsg"), "Replaced " + n + ". Tap Save change to keep it.", "ok");
+};
+
+/* 4. publish */
+$("dl").onclick = () => { if (S) location.href = "/api/download?s=" + S; };
+$("go").onclick = async () => {
+  if (dirty() && !confirm("The open script has unsaved changes that will NOT be included. Continue anyway?")) return;
+  const pubMode = $("vt").value === "Published";
+  if (pubMode && !$("ok").checked) return say($("pubmsg"), "Tick the confirmation box to publish.", "err");
+  const key = $("key").value.trim(), uni = $("uni").value.trim(), place = $("place").value.trim();
+  if (!key || !/^\d+$/.test(uni) || !/^\d+$/.test(place)) return say($("pubmsg"), "Enter the API key and numeric Universe and Place IDs.", "err");
+  store.set("uni", uni); store.set("place", place);
+  $("go").disabled = true; say($("pubmsg"), "Uploading…");
+  try {
+    const d = await call("/api/publish?s=" + S, { method: "POST", headers: { "x-api-key": key, "x-universe-id": uni, "x-place-id": place, "x-version-type": $("vt").value } });
+    say($("pubmsg"), "Success! Version number: " + (d.versionNumber ?? "n/a"), "ok");
+  } catch (e) { say($("pubmsg"), "Failed: " + e.message, "err"); }
+  $("go").disabled = false;
+};
+</script>
+</body>
+</html>
