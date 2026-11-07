@@ -53,6 +53,30 @@
     <input id="q" type="search" placeholder="Search by name or path" autocomplete="off">
     <div class="check"><input type="checkbox" id="nobk" checked><span>Hide backup copies (paths containing "Backup")</span></div>
     <div id="results"></div>
+    <button class="sec" id="newbtn" style="width:100%;margin-top:12px">＋ New script</button>
+  </section>
+
+  <section class="card hide" id="newp">
+    <h2>New script</h2>
+    <label for="ntype">Type</label>
+    <select id="ntype">
+      <option value="Script">Script (runs on the server)</option>
+      <option value="LocalScript">LocalScript (runs on the player)</option>
+      <option value="ModuleScript">ModuleScript (shared code)</option>
+    </select>
+    <label for="nname">Name</label>
+    <input id="nname" autocapitalize="off" autocorrect="off" autocomplete="off">
+    <label for="npq">Parent (where it goes)</label>
+    <input id="npq" type="search" placeholder="Search: Workspace, ServerScriptService, a folder…" autocomplete="off">
+    <div id="npres"></div>
+    <div class="path" id="nsel" style="margin-top:10px">No parent chosen yet.</div>
+    <label for="ncode">Code</label>
+    <textarea id="ncode" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" style="min-height:30vh"></textarea>
+    <div class="row">
+      <button class="sec" id="ncancel">Cancel</button>
+      <button id="ncreate">Create script</button>
+    </div>
+    <div class="msg" id="nmsg"></div>
   </section>
 
   <section class="card hide" id="ed">
@@ -75,6 +99,12 @@
   <section class="card hide" id="pub">
     <h2>3. Publish</h2>
     <div class="msg" id="changed" style="margin-top:0"></div>
+    <label for="targets">Saved places</label>
+    <select id="targets"><option value="">— choose a saved place —</option></select>
+    <div class="row">
+      <button class="sec" id="tsave">Save these IDs…</button>
+      <button class="sec" id="tdel">Remove selected</button>
+    </div>
     <label for="key">Open Cloud API key</label>
     <input id="key" type="password" autocomplete="off">
     <label for="uni">Universe ID</label>
@@ -92,12 +122,14 @@
       <button class="sec" id="dl">Download file</button>
     </div>
     <div class="msg" id="pubmsg"></div>
+    <div class="msg hide" id="playbox"></div>
+    <small class="note"><b>New experience?</b> Roblox doesn't let apps create experiences. In Creator Hub tap Create → Experience, then copy its Universe ID and Place ID here. Uploading replaces that experience's start place, which makes a copy of this game.</small>
     <small class="note">Your key goes only to this site's server, which forwards it to Roblox and does not store it.</small>
   </section>
 </main>
 <script>
 const $ = id => document.getElementById(id);
-let S = null, scripts = [], cur = null, orig = "";
+let S = null, scripts = [], containers = [], cur = null, orig = "", parentId = null;
 const say = (el, text, cls) => { el.className = "msg " + (cls || ""); el.textContent = text; };
 const show = (id, on) => $(id).classList.toggle("hide", !on);
 const store = {
@@ -120,7 +152,7 @@ $("file").addEventListener("change", async () => {
   say($("upmsg"), "Reading place… this can take up to a minute for big places.");
   try {
     const d = await call("/api/scan", { method: "POST", headers: { "Content-Type": "application/octet-stream" }, body: f });
-    S = d.session; scripts = d.scripts; cur = null;
+    S = d.session; scripts = d.scripts; containers = d.containers || []; cur = null; parentId = null;
     say($("upmsg"), "Found " + scripts.length + " scripts in " + f.name, "ok");
     show("list", true); show("pub", true); show("ed", false);
     $("changed").textContent = "No changes yet.";
@@ -200,6 +232,66 @@ $("repall").onclick = () => {
   say($("edmsg"), "Replaced " + n + ". Tap Save change to keep it.", "ok");
 };
 
+/* new script */
+const PREFERRED = ["Workspace","ServerScriptService","ServerStorage","ReplicatedStorage","ReplicatedFirst","StarterGui","StarterPack","StarterPlayer","StarterPlayerScripts","StarterCharacterScripts"];
+function renderParents() {
+  const words = $("npq").value.toLowerCase().split(/\s+/).filter(Boolean);
+  let hits;
+  if (words.length) hits = containers.filter(c => words.every(w => c.path.toLowerCase().includes(w))).slice(0, 8);
+  else hits = PREFERRED.map(n => containers.find(c => c.path === n)).filter(Boolean);
+  const box = $("npres"); box.textContent = "";
+  hits.forEach(c => {
+    const div = document.createElement("div"); div.className = "item";
+    const b = document.createElement("b"); b.textContent = c.path;
+    const t = document.createElement("span"); t.className = "tag"; t.textContent = c.cls; b.appendChild(t);
+    div.appendChild(b);
+    div.onclick = () => { parentId = c.id; $("nsel").textContent = "Parent: " + c.path; box.textContent = ""; $("npq").value = ""; };
+    box.appendChild(div);
+  });
+}
+$("newbtn").onclick = () => { show("list", false); show("newp", true); say($("nmsg"), ""); renderParents(); window.scrollTo(0, 0); };
+$("ncancel").onclick = () => { show("newp", false); show("list", true); };
+$("npq").addEventListener("input", renderParents);
+$("ncreate").onclick = async () => {
+  const name = $("nname").value.trim();
+  if (!name) return say($("nmsg"), "Type a name for the script.", "err");
+  if (parentId === null) return say($("nmsg"), "Choose a parent first.", "err");
+  $("ncreate").disabled = true; say($("nmsg"), "Creating…");
+  try {
+    const d = await call("/api/add?s=" + S, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ cls: $("ntype").value, name, parentId, source: $("ncode").value }) });
+    scripts.push(d.script);
+    $("changed").textContent = d.changed + " script" + (d.changed === 1 ? "" : "s") + " changed or added, ready to upload.";
+    $("nname").value = ""; $("ncode").value = "";
+    show("newp", false); render();
+    await openScript(d.script);
+    say($("edmsg"), "Created. Not published yet, use step 3 below.", "ok");
+  } catch (e) { say($("nmsg"), e.message, "err"); }
+  $("ncreate").disabled = false;
+};
+
+/* saved places */
+function loadTargets() { try { return JSON.parse(store.get("targets") || "[]"); } catch { return []; } }
+function drawTargets() {
+  const sel = $("targets"); sel.length = 1;
+  loadTargets().forEach((t, i) => { const o = document.createElement("option"); o.value = i; o.textContent = t.name + " (" + t.place + ")"; sel.appendChild(o); });
+}
+$("targets").onchange = () => {
+  const t = loadTargets()[$("targets").value]; if (!t) return;
+  $("uni").value = t.uni; $("place").value = t.place;
+};
+$("tsave").onclick = () => {
+  const uni = $("uni").value.trim(), place = $("place").value.trim();
+  if (!/^\d+$/.test(uni) || !/^\d+$/.test(place)) return say($("pubmsg"), "Enter numeric Universe and Place IDs first.", "err");
+  const name = prompt("Name for this place:"); if (!name) return;
+  const list = loadTargets(); list.push({ name: name.slice(0, 40), uni, place });
+  store.set("targets", JSON.stringify(list)); drawTargets();
+};
+$("tdel").onclick = () => {
+  const i = $("targets").value; if (i === "") return;
+  const list = loadTargets(); list.splice(Number(i), 1); store.set("targets", JSON.stringify(list)); drawTargets();
+};
+drawTargets();
+
 /* 4. publish */
 $("dl").onclick = () => { if (S) location.href = "/api/download?s=" + S; };
 $("go").onclick = async () => {
@@ -209,10 +301,18 @@ $("go").onclick = async () => {
   const key = $("key").value.trim(), uni = $("uni").value.trim(), place = $("place").value.trim();
   if (!key || !/^\d+$/.test(uni) || !/^\d+$/.test(place)) return say($("pubmsg"), "Enter the API key and numeric Universe and Place IDs.", "err");
   store.set("uni", uni); store.set("place", place);
-  $("go").disabled = true; say($("pubmsg"), "Uploading…");
+  $("go").disabled = true; say($("pubmsg"), "Uploading…"); $("playbox").className = "msg hide";
   try {
     const d = await call("/api/publish?s=" + S, { method: "POST", headers: { "x-api-key": key, "x-universe-id": uni, "x-place-id": place, "x-version-type": $("vt").value } });
     say($("pubmsg"), "Success! Version number: " + (d.versionNumber ?? "n/a"), "ok");
+    const box = $("playbox"); box.textContent = "";
+    if ($("vt").value === "Published") {
+      const a = document.createElement("a"); a.href = "https://www.roblox.com/games/" + place; a.target = "_blank"; a.rel = "noopener";
+      a.textContent = "▶ Play: roblox.com/games/" + place; a.style.cssText = "font-weight:600;color:var(--accent);word-break:break-all";
+      box.className = "msg"; box.appendChild(a);
+    } else {
+      box.className = "msg"; box.textContent = "Saved, not live yet. Open the place in Roblox Studio to check it, then Publish.";
+    }
   } catch (e) { say($("pubmsg"), "Failed: " + e.message, "err"); }
   $("go").disabled = false;
 };
