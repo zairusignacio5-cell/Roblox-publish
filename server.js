@@ -22,7 +22,7 @@ app.post("/publish", express.raw({ type: "*/*", limit: "100mb" }), async (req, r
     if (!req.body || !req.body.length)
       return res.status(400).json({ error: "File is empty." });
 
-    const url = `https://apis.roblox.com/universes/v1/universes/${universeId}/places/${placeId}/versions?versionType=${versionType}`;
+    const url = `https://apis.roblox.com/universes/v1/${universeId}/places/${placeId}/versions?versionType=${versionType}`;
     const r = await fetch(url, {
       method: "POST",
       headers: {
