@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Place Publisher</title>
+<style>
+  :root { --bg:#f5f6f8; --card:#fff; --text:#16181d; --muted:#666d7a; --accent:#2563eb; --border:#d8dce3; --err:#c62828; --ok:#1b7f3b; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0f1115; --card:#181b21; --text:#eceef2; --muted:#9aa1ad; --accent:#4f8cff; --border:#2c313a; --err:#ff6b6b; --ok:#4cd07d; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.4 system-ui,sans-serif; padding:16px; }
+  main { max-width:480px; margin:0 auto; }
+  h1 { font-size:1.3rem; margin:8px 0 16px; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px; }
+  label { display:block; font-size:.85rem; color:var(--muted); margin:14px 0 6px; }
+  label:first-child { margin-top:0; }
+  input, select { width:100%; padding:12px; font-size:16px; border:1px solid var(--border); border-radius:10px; background:var(--bg); color:var(--text); }
+  .check { display:flex; gap:10px; align-items:flex-start; margin-top:16px; font-size:.9rem; }
+  .check input { width:auto; margin-top:3px; }
+  button { width:100%; margin-top:16px; padding:14px; font-size:1rem; font-weight:600; border:0; border-radius:10px; background:var(--accent); color:#fff; }
+  button:disabled { opacity:.5; }
+  #msg { margin-top:14px; font-size:.9rem; word-break:break-word; }
+  .err { color:var(--err); } .ok { color:var(--ok); }
+  small { color:var(--muted); display:block; margin-top:12px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Roblox Place Publisher</h1>
+  <form class="card" id="f">
+    <label for="key">Open Cloud API key</label>
+    <input id="key" type="password" autocomplete="off" required>
+
+    <label for="uni">Universe ID</label>
+    <input id="uni" inputmode="numeric" pattern="\d+" required>
+
+    <label for="place">Place ID</label>
+    <input id="place" inputmode="numeric" pattern="\d+" required>
+
+    <label for="file">Place file (.rbxl or .rbxlx)</label>
+    <input id="file" type="file" accept=".rbxl,.rbxlx" required>
+
+    <label for="vt">Action</label>
+    <select id="vt">
+      <option value="Published">Publish (goes live)</option>
+      <option value="Saved">Save only (not live)</option>
+    </select>
+
+    <div class="check">
+      <input type="checkbox" id="ok" required>
+      <span>I understand publishing overwrites the current version of this place.</span>
+    </div>
+
+    <button id="btn" type="submit">Upload</button>
+    <div id="msg"></div>
+    <small>Your key is sent only to this site's server, which forwards it to Roblox and does not store it.</small>
+  </form>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+$("f").addEventListener("submit", async e => {
+  e.preventDefault();
+  const file = $("file").files[0];
+  const msg = $("msg"), btn = $("btn");
+  const ext = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
+  if (![".rbxl", ".rbxlx"].includes(ext)) { msg.className = "err"; msg.textContent = "Pick a .rbxl or .rbxlx file."; return; }
+  btn.disabled = true; msg.className = ""; msg.textContent = "Uploading...";
+  try {
+    const r = await fetch("/publish", {
+      method: "POST",
+      headers: {
+        "x-api-key": $("key").value.trim(),
+        "x-universe-id": $("uni").value,
+        "x-place-id": $("place").value,
+        "x-file-ext": ext,
+        "x-version-type": $("vt").value,
+        "Content-Type": "application/octet-stream"
+      },
+      body: file
+    });
+    const d = await r.json();
+    if (r.ok) { msg.className = "ok"; msg.textContent = "Success! Version number: " + (d.versionNumber ?? "n/a"); }
+    else { msg.className = "err"; msg.textContent = "Failed (" + r.status + "): " + d.error; }
+  } catch (err) { msg.className = "err"; msg.textContent = "Network error: " + err.message; }
+  btn.disabled = false;
+});
+</script>
+</body>
+</html>
