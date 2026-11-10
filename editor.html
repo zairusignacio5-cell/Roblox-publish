@@ -34,18 +34,38 @@
   .tag { display:inline-block; font-size:.7rem; padding:1px 6px; border-radius:6px; background:var(--code); color:var(--muted); margin-left:6px; vertical-align:middle; }
   .path { font-size:.85rem; color:var(--muted); word-break:break-all; margin-bottom:10px; }
   small.note { color:var(--muted); display:block; margin-top:10px; }
+  .crumb { font-size:.85rem; color:var(--muted); word-break:break-all; margin:10px 0; }
+  .crumb a, .link { color:var(--accent); cursor:pointer; text-decoration:underline; }
+  .item.sel { border-color:var(--accent); }
+  .item .go { float:right; font-weight:700; color:var(--accent); padding-left:12px; }
+  .prop { display:flex; flex-direction:column; gap:6px; padding:10px 0; border-top:1px solid var(--border); }
+  .prop > div { display:flex; gap:8px; } .prop input, .prop select { flex:1; padding:9px; }
+  .prop button { padding:9px 12px; flex:0 0 auto; }
+  .prop .nm { font-size:.85rem; color:var(--muted); }
+  button.danger { background:var(--err); }
+  .ro { color:var(--muted); font-size:.9rem; word-break:break-all; }
   .hide { display:none; }
+  .credit { text-align:center; color:var(--muted); font-size:.85rem; padding:18px 0 8px; }
 </style>
 </head>
 <body>
 <main>
   <h1>Place Script Editor</h1>
 
+  <section class="card" id="saved">
+    <h2>Saved places</h2>
+    <select id="targets"><option value="">— choose a saved place —</option></select>
+    <div class="row">
+      <button id="tload">Load</button>
+      <button class="sec" id="tdel">Delete</button>
+    </div>
+    <div class="msg" id="tmsg"></div>
+  </section>
+
   <section class="card" id="up">
     <h2>1. Open your place</h2>
     <input id="file" type="file" accept=".rbxl">
     <div class="msg" id="upmsg"></div>
-    <small class="note">Binary <b>.rbxl</b> files only. The file is kept in server memory for up to 1 hour while you edit, then discarded.</small>
   </section>
 
   <section class="card hide" id="list">
@@ -83,6 +103,7 @@
     <div class="row" style="margin-top:0">
       <button class="sec" id="back">← Scripts</button>
       <button id="save" disabled>Save change</button>
+      <button class="danger" id="delscr">Delete</button>
     </div>
     <div class="path" id="curpath" style="margin-top:12px"></div>
     <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off"></textarea>
@@ -99,12 +120,6 @@
   <section class="card hide" id="pub">
     <h2>3. Publish</h2>
     <div class="msg" id="changed" style="margin-top:0"></div>
-    <label for="targets">Saved places</label>
-    <select id="targets"><option value="">— choose a saved place —</option></select>
-    <div class="row">
-      <button class="sec" id="tsave">Save these IDs…</button>
-      <button class="sec" id="tdel">Remove selected</button>
-    </div>
     <label for="key">Open Cloud API key</label>
     <input id="key" type="password" autocomplete="off">
     <label for="uni">Universe ID</label>
@@ -120,12 +135,12 @@
     <div class="row">
       <button id="go">Upload</button>
       <button class="sec" id="dl">Download file</button>
+      <button class="sec" id="tsave">Save place</button>
     </div>
     <div class="msg" id="pubmsg"></div>
     <div class="msg hide" id="playbox"></div>
-    <small class="note"><b>New experience?</b> Roblox doesn't let apps create experiences. In Creator Hub tap Create → Experience, then copy its Universe ID and Place ID here. Uploading replaces that experience's start place, which makes a copy of this game.</small>
-    <small class="note">Your key goes only to this site's server, which forwards it to Roblox and does not store it.</small>
   </section>
+  <footer class="credit">I don't own this. Credits to <b>Blax56</b>.</footer>
 </main>
 <script>
 const $ = id => document.getElementById(id);
@@ -146,19 +161,28 @@ async function call(url, opts) {
 }
 
 /* 1. upload */
-$("file").addEventListener("change", async () => {
-  const f = $("file").files[0]; if (!f) return;
+let lastFile = null;
+async function openFile(f) {
   if (!f.name.toLowerCase().endsWith(".rbxl")) return say($("upmsg"), "Please pick a .rbxl file.", "err");
+  // forget everything from the previous file first, so nothing old can stay on screen
+  S = null; scripts = []; containers = []; cur = null; orig = ""; parentId = null;
+  $("code").value = ""; $("q").value = ""; $("results").textContent = "";
+  for (const m of ["edmsg", "pubmsg", "changed"]) { $(m).textContent = ""; $(m).className = "msg"; }
+  $("playbox").textContent = ""; $("playbox").className = "msg hide";
+  show("list", false); show("pub", false); show("ed", false);
   say($("upmsg"), "Reading place… this can take up to a minute for big places.");
   try {
     const d = await call("/api/scan", { method: "POST", headers: { "Content-Type": "application/octet-stream" }, body: f });
+    lastFile = f;
     S = d.session; scripts = d.scripts; containers = d.containers || []; cur = null; parentId = null;
     say($("upmsg"), "Found " + scripts.length + " scripts in " + f.name, "ok");
     show("list", true); show("pub", true); show("ed", false);
     $("changed").textContent = "No changes yet.";
     render();
   } catch (e) { say($("upmsg"), e.message, "err"); }
-});
+  $("file").value = ""; // lets you pick the same file again
+}
+$("file").addEventListener("change", () => { const f = $("file").files[0]; if (f) openFile(f); });
 
 /* 2. list */
 function render() {
@@ -269,26 +293,71 @@ $("ncreate").onclick = async () => {
   $("ncreate").disabled = false;
 };
 
-/* saved places */
-function loadTargets() { try { return JSON.parse(store.get("targets") || "[]"); } catch { return []; } }
-function drawTargets() {
-  const sel = $("targets"); sel.length = 1;
-  loadTargets().forEach((t, i) => { const o = document.createElement("option"); o.value = i; o.textContent = t.name + " (" + t.place + ")"; sel.appendChild(o); });
+
+/* delete the open script */
+function applyLists(d) {
+  scripts = d.scripts; containers = d.containers || containers; render();
+  $("changed").textContent = "Place changed. Use step 3 to upload or download.";
 }
-$("targets").onchange = () => {
-  const t = loadTargets()[$("targets").value]; if (!t) return;
-  $("uni").value = t.uni; $("place").value = t.place;
+$("delscr").onclick = async () => {
+  if (!cur) return;
+  try {
+    const d = await call("/api/delete?s=" + S, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ id: cur.id, dry: 1 }) });
+    const extra = d.total > 1 ? " It also contains " + (d.total - 1) + " other item" + (d.total === 2 ? "" : "s") + " that will be deleted too." : "";
+    if (!confirm("Delete \"" + cur.path.split("/").pop() + "\"?" + extra + " Nothing is published until you upload.")) return;
+    const r = await call("/api/delete?s=" + S, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ id: cur.id }) });
+    cur = null; orig = ""; $("code").value = "";
+    applyLists(r); show("ed", false); show("list", true);
+    window.scrollTo(0, 0);
+  } catch (e) { say($("edmsg"), e.message, "err"); }
 };
-$("tsave").onclick = () => {
-  const uni = $("uni").value.trim(), place = $("place").value.trim();
+
+/* saved places: name + universe + place + API key (this device only) + the last .rbxl you opened */
+const idb = () => new Promise((ok, no) => { try { const r = indexedDB.open("places", 1); r.onupgradeneeded = () => r.result.createObjectStore("files"); r.onsuccess = () => ok(r.result); r.onerror = () => no(r.error); } catch (e) { no(e); } });
+async function fileOp(mode, id, val) {
+  try {
+    const db = await idb();
+    return await new Promise((ok, no) => {
+      const st = db.transaction("files", mode === "get" ? "readonly" : "readwrite").objectStore("files");
+      const r = mode === "get" ? st.get(id) : mode === "put" ? st.put(val, id) : st.delete(id);
+      r.onsuccess = () => ok(r.result); r.onerror = () => no(r.error);
+    });
+  } catch { return null; }
+}
+function loadTargets() { try { return JSON.parse(store.get("targets") || "[]"); } catch { return []; } }
+function drawTargets(select) {
+  const sel = $("targets"); sel.length = 1;
+  loadTargets().forEach((t, i) => { const o = document.createElement("option"); o.value = i; o.textContent = t.name + " (" + t.place + ")" + (t.hasFile ? " · file" : ""); sel.appendChild(o); });
+  if (select !== undefined) sel.value = select;
+}
+$("tload").onclick = async () => {
+  const i = $("targets").value, t = loadTargets()[i]; if (!t) return say($("tmsg"), "Choose a saved place first.", "err");
+  $("uni").value = t.uni; $("place").value = t.place; $("key").value = t.key || "";
+  store.set("uni", t.uni); store.set("place", t.place);
+  const f = t.hasFile ? await fileOp("get", t.id) : null;
+  if (f) { say($("tmsg"), "Loaded " + t.name + " with its key, IDs and file.", "ok"); await openFile(f); }
+  else say($("tmsg"), "Loaded " + t.name + " (key and IDs). Now open your .rbxl file.", "ok");
+};
+$("tsave").onclick = async () => {
+  const uni = $("uni").value.trim(), place = $("place").value.trim(), key = $("key").value.trim();
   if (!/^\d+$/.test(uni) || !/^\d+$/.test(place)) return say($("pubmsg"), "Enter numeric Universe and Place IDs first.", "err");
-  const name = prompt("Name for this place:"); if (!name) return;
-  const list = loadTargets(); list.push({ name: name.slice(0, 40), uni, place });
-  store.set("targets", JSON.stringify(list)); drawTargets();
+  const list = loadTargets();
+  let idx = list.findIndex(t => t.uni === uni && t.place === place);
+  let name = idx >= 0 ? list[idx].name : "";
+  if (!name) { try { const g = await (await fetch("/api/gamename?u=" + uni)).json(); if (g.name) name = g.name; } catch {} }
+  name = prompt("Name for this place:", name || ""); if (!name) return;
+  const entry = { id: idx >= 0 ? list[idx].id : String(Date.now()), name: name.slice(0, 40), uni, place, key, hasFile: false };
+  if (lastFile) { await fileOp("put", entry.id, lastFile); entry.hasFile = !!(await fileOp("get", entry.id)); }
+  else if (idx >= 0) entry.hasFile = list[idx].hasFile;
+  if (idx >= 0) list[idx] = entry; else { list.push(entry); idx = list.length - 1; }
+  store.set("targets", JSON.stringify(list)); drawTargets(String(idx));
+  say($("pubmsg"), "Saved " + entry.name + (entry.hasFile ? " with key, IDs and file." : " with key and IDs."), "ok");
 };
-$("tdel").onclick = () => {
+$("tdel").onclick = async () => {
   const i = $("targets").value; if (i === "") return;
-  const list = loadTargets(); list.splice(Number(i), 1); store.set("targets", JSON.stringify(list)); drawTargets();
+  const list = loadTargets(), t = list[i]; if (!t || !confirm("Delete saved place \"" + t.name + "\"?")) return;
+  await fileOp("del", t.id); list.splice(Number(i), 1); store.set("targets", JSON.stringify(list)); drawTargets();
+  say($("tmsg"), "Deleted.", "ok");
 };
 drawTargets();
 
@@ -307,11 +376,14 @@ $("go").onclick = async () => {
     say($("pubmsg"), "Success! Version number: " + (d.versionNumber ?? "n/a"), "ok");
     const box = $("playbox"); box.textContent = "";
     if ($("vt").value === "Published") {
-      const a = document.createElement("a"); a.href = "https://www.roblox.com/games/" + place; a.target = "_blank"; a.rel = "noopener";
-      a.textContent = "▶ Play: roblox.com/games/" + place; a.style.cssText = "font-weight:600;color:var(--accent);word-break:break-all";
+      let gname = "";
+      try { const g = await (await fetch("/api/gamename?u=" + uni)).json(); if (g.name) gname = g.name; } catch {}
+      if (gname) say($("pubmsg"), "Success! " + gname + " · version " + (d.versionNumber ?? "n/a"), "ok");
+      const a = document.createElement("a"); a.href = "roblox://experiences/start?placeId=" + place;
+      a.textContent = "▶ Open " + (gname || "the game") + " in the Roblox app"; a.style.cssText = "font-weight:600;color:var(--accent);word-break:break-all";
       box.className = "msg"; box.appendChild(a);
     } else {
-      box.className = "msg"; box.textContent = "Saved, not live yet. Open the place in Roblox Studio to check it, then Publish.";
+      box.className = "msg"; box.textContent = "Saved, not live yet.";
     }
   } catch (e) { say($("pubmsg"), "Failed: " + e.message, "err"); }
   $("go").disabled = false;
