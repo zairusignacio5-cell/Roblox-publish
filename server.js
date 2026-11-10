@@ -140,6 +140,7 @@ function indexPlace(pl) {
   for (const info of classes.values())
     if (info.service || CONTAINER_CLASSES.has(info.cn))
       for (const id of info.refs) containers.push({ id, cls: info.cn, path: pathOf(id) });
+  meta.names = names; meta.parent = parent; meta.classes = classes;
   pl.meta = meta;
   return { scripts, containers };
 }
@@ -197,11 +198,12 @@ function addScript(session, { cls, name, source, parentId }) {
     } else if (type === 2) {
       if (body.length !== n) throw new Error("Unexpected layout for " + pn);
       const cnt = [0, 0]; for (const v of body) cnt[v ? 1 : 0]++;
-      add = Buffer.concat([d, Buffer.from([cnt[1] > cnt[0] ? 1 : 0])]);
+      add = Buffer.concat([d, Buffer.from([pn === "Disabled" ? 0 : (cnt[1] > cnt[0] ? 1 : 0)])]); // new scripts are always enabled
     } else if (FIXED_W[type]) {
       const w = FIXED_W[type];
       if (body.length !== w * n) throw new Error("Unexpected layout for " + pn);
       let el = modeElement(body, n, w);
+      if (pn === "RunContext" && type === 0x12) el = Buffer.alloc(w); // Legacy
       if (pn === "UniqueId" && type === 0x1f) { el = Buffer.from(el); crypto.randomBytes(4).copy(el, 0); crypto.randomBytes(8).copy(el, 8); }
       add = Buffer.concat([d.subarray(0, H), appendInterleaved(body, n, w, el)]);
     } else throw new Error("Can't add here: property " + pn + " uses a type I don't support yet (0x" + type.toString(16) + ").");
@@ -288,6 +290,29 @@ function getSession(req, res) {
   s.exp = Date.now() + 3600e3;
   return s;
 }
+
+// After a move/delete: recompute script offsets, script paths and parent list
+function refreshLists(s) {
+  const pl = s.pl, meta = pl.meta, dirty = new Set(s.scripts.filter(x => x.dirty).map(x => x.id));
+  const pathOf = r => { const o = []; for (let g = 0; r !== undefined && r !== -1 && g < 200; g++) { o.push(meta.names.get(r) ?? "?"); r = meta.parent.get(r); } return o.reverse().join("/"); };
+  const scripts = [], containers = [];
+  for (const info of meta.classes.values()) {
+    if (SCRIPT_CLASSES.has(info.cn)) {
+      const c = (meta.props.get(info.cid) || []).find(x => { const d = getData(x); const l = d.readUInt32LE(4); return d.toString("utf8", 8, 8 + l) === "Source"; });
+      if (c) {
+        const d = getData(c), l = d.readUInt32LE(4); let q = 9 + l; const offs = [];
+        for (let i = 0; i < info.refs.length; i++) { offs.push(q); q += 4 + d.readUInt32LE(q); }
+        c.offs = offs;
+        info.refs.forEach((ref, idx) => scripts.push({ id: ref, cls: info.cn, chunk: c, idx, dirty: dirty.has(ref), path: pathOf(ref) }));
+      }
+    }
+    if (info.service || CONTAINER_CLASSES.has(info.cn)) for (const id of info.refs) containers.push({ id, cls: info.cn, path: pathOf(id) });
+  }
+  s.scripts = scripts; s.byId = new Map(scripts.map(x => [x.id, x]));
+  s.containerIds = new Set(containers.map(c => c.id)); s.containerPath = new Map(containers.map(c => [c.id, c.path]));
+  return { scripts: scripts.map(x => ({ id: x.id, cls: x.cls, len: srcLen(x), path: x.path })), containers, changed: scripts.filter(x => x.dirty).length };
+}
+require("./explorer")(app, express, { getSession, getData, refreshLists });
 
 /* ------------------------------------------------------------------ */
 /*  Roblox Open Cloud                                                   */
@@ -382,6 +407,17 @@ app.post("/api/publish", async (req, res) => {
   } catch (e) {
     res.status(500).json({ error: "Server error: " + e.message });
   }
+});
+
+// Game name for a universe (public Roblox API, called from the server)
+app.get("/api/gamename", async (req, res) => {
+  try {
+    const u = String(req.query.u || "").trim();
+    if (!/^\d+$/.test(u)) return res.json({ name: null });
+    const r = await fetch("https://games.roblox.com/v1/games?universeIds=" + u);
+    const j = await r.json();
+    res.json({ name: (j && j.data && j.data[0] && j.data[0].name) || null });
+  } catch (e) { res.json({ name: null }); }
 });
 
 // Original upload-only publisher (kept at /classic)
