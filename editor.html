@@ -61,14 +61,129 @@
   .ro { color:var(--muted); font-size:.9rem; word-break:break-all; }
   .hide { display:none; }
   .credit { text-align:center; color:var(--muted); font-size:.85rem; padding:18px 0 8px; }
+
+/* ===== Place Script Editor (IDE) ===== */
+body { padding-top: 62px; }
+main { max-width: 1000px; }
+#saved, #pub { width: 100%; max-width: 640px; margin-left: auto; margin-right: auto; }
+.win { --paper:#fbf6ea; --paper2:#f3ecdb; --ink:#1d1a14; --mut:#6d6555; --line:#cfc3a8; --st:#3a2a12; --or:#f08a1c; --gr:#2faa52; --rd:#d2343c;
+       background-color: var(--paper); background-image: var(--btnimg); background-size: 64px 64px; color: var(--ink);
+       border: 3px solid var(--st); border-radius: 18px; box-shadow: 0 6px 0 var(--shadow), 0 14px 30px rgba(0,0,0,.18); overflow: hidden; color-scheme: light; }
+.titlebar { display:flex; align-items:center; gap:10px; padding:10px 12px 6px; }
+.logo { width:34px; height:34px; border-radius:10px; background:linear-gradient(180deg,#ffa63a,#e8790c); border:2px solid var(--st); color:#fff; font:800 13px/30px ui-monospace,Menlo,monospace; text-align:center; box-shadow:0 2px 0 var(--st); flex:none; }
+.titlebar h1 { margin:0; font-size:1.15rem; font-weight:800; letter-spacing:.2px; }
+.filetag { margin-left:auto; font-size:.78rem; color:var(--mut); max-width:45%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.toolbar { display:flex; gap:7px; padding:6px 10px 10px; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+.toolbar::-webkit-scrollbar { display:none; }
+.tb { flex:none; display:flex; align-items:center; gap:6px; padding:8px 12px; font-size:.92rem; font-weight:700; color:var(--ink); text-shadow:none;
+      background-color:#fffdf7; background-image: var(--btnimg); background-size:48px 48px; border:2px solid var(--st); border-radius:11px; box-shadow:0 3px 0 var(--st); white-space:nowrap; }
+.tb svg { width:16px; height:16px; flex:none; }
+.tb.run { background-color:var(--gr); color:#fff; text-shadow:0 1px 0 rgba(0,0,0,.4); }
+.tb.run svg { fill:#fff; }
+.tb.stop:not(:disabled) { background-color:var(--rd); color:#fff; text-shadow:0 1px 0 rgba(0,0,0,.4); }
+.tb.stop:not(:disabled) svg { fill:#fff; }
+.tb.warn { background-color:#fff0d6; }
+.tb:disabled { opacity:.45; box-shadow:0 1px 0 var(--st); }
+.tabs { display:none; padding:0 10px 8px; gap:6px; }
+.tabs button { flex:1; padding:8px 4px; font-size:.88rem; color:var(--ink); text-shadow:none; background-color:#fffdf7; border-radius:10px; box-shadow:0 2px 0 var(--st); background-image:var(--btnimg); background-size:48px 48px; }
+.tabs button.on { background-color:var(--or); color:#fff; text-shadow:0 1px 0 rgba(0,0,0,.4); }
+.panes { display:grid; grid-template-columns: 250px 1fr 210px; gap:10px; padding:0 10px 10px; height:520px; }
+.pane { background:var(--paper); border:2px solid var(--st); border-radius:12px; min-width:0; min-height:0; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 2px 0 var(--st); }
+.phead { display:flex; align-items:center; gap:8px; padding:9px 12px 6px; font-weight:800; font-size:1rem; }
+.phead small { margin-left:auto; font-weight:600; color:var(--mut); font-size:.72rem; }
+.hb { margin-left:auto; display:flex; align-items:center; gap:5px; font-size:.72rem; color:var(--mut); font-weight:600; cursor:pointer; }
+.hb input { width:auto; margin:0; padding:0; }
+.srch { padding:0 10px 8px; display:flex; flex-direction:column; gap:6px; }
+.srch input[type=search] { padding:9px 10px 9px 32px; font-size:16px; border:2px solid var(--st); border-radius:10px; background:#fff var(--mag) no-repeat 9px 50%; background-size:16px; color:var(--ink); }
+.srch label { display:flex; align-items:center; gap:7px; margin:0; font-size:.78rem; color:var(--mut); }
+.srch label input { width:auto; padding:0; margin:0; }
+.tree { flex:1; overflow:auto; padding:0 4px 10px; -webkit-overflow-scrolling:touch; }
+.tr { display:flex; align-items:center; gap:6px; padding:7px 8px; border-radius:8px; cursor:pointer; font-size:.92rem; min-height:36px; user-select:none; }
+.tr:hover { background:rgba(240,138,28,.14); }
+.tr.sel { background:rgba(240,138,28,.28); font-weight:700; }
+.tr .arr { width:12px; flex:none; color:var(--mut); font-size:.7rem; text-align:center; transition:transform .12s; }
+.tr .arr.open { transform:rotate(90deg); }
+.tr .ic { width:18px; height:18px; flex:none; }
+.tr .nm { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.tr .cnt { font-size:.68rem; color:var(--mut); }
+.tr .dot { width:8px; height:8px; border-radius:50%; background:var(--or); flex:none; }
+.tr .sub { display:block; font-size:.7rem; color:var(--mut); font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tr mark { background:#ffd98a; color:inherit; border-radius:3px; padding:0 1px; }
+.tr.hit { align-items:flex-start; }
+.tr.hit .ic { margin-top:2px; }
+.tr.hit .nm { white-space:normal; }
+.note2 { padding:8px 12px; font-size:.78rem; color:var(--mut); }
+.codepane { position:relative; }
+.findbar { display:none; flex-wrap:wrap; gap:6px; padding:8px 10px; border-bottom:2px solid var(--line); background:var(--paper2); }
+.findbar.on { display:flex; }
+.findbar input { flex:1 1 120px; min-width:0; padding:8px 10px; font-size:16px; border:2px solid var(--st); border-radius:9px; background:#fff; color:var(--ink); }
+.findbar button { padding:7px 10px; font-size:.85rem; color:var(--ink); text-shadow:none; background-color:#fffdf7; background-image:var(--btnimg); background-size:48px 48px; box-shadow:0 2px 0 var(--st); border-radius:9px; }
+.findbar button.on { background-color:var(--or); color:#fff; }
+.findbar .fc { font-size:.75rem; color:var(--mut); align-self:center; min-width:48px; }
+.ed { flex:1; display:flex; min-height:0; position:relative; background:#fffdf8; }
+.gut { width:48px; flex:none; overflow:hidden; background:var(--paper2); border-right:2px solid var(--line); position:relative; }
+.gutin { position:absolute; left:0; right:0; top:0; padding:8px 0; font:15px/22px ui-monospace,Menlo,Consolas,monospace; text-align:right; color:#8a826f; will-change:transform; }
+.gutin div { padding-right:8px; height:22px; }
+.gutin div.e { background:#ffd9d9; color:#b3262e; font-weight:800; }
+.gutin div.w { background:#fff1c9; color:#8a5a00; font-weight:800; }
+.view { position:relative; flex:1; min-width:0; overflow:hidden; }
+.layer { position:absolute; left:0; top:0; will-change:transform; }
+.bands { position:absolute; left:0; top:8px; width:100000px; pointer-events:none; }
+.bands i { position:absolute; left:0; right:0; height:22px; }
+.bands i.e { background:rgba(210,52,60,.14); border-bottom:2px wavy #d2343c; }
+.bands i.w { background:rgba(240,168,20,.14); }
+.bands i.cur { background:rgba(240,138,28,.10); }
+#hl, #code { margin:0; padding:8px 12px; font:15px/22px ui-monospace,Menlo,Consolas,monospace; tab-size:4; white-space:pre; letter-spacing:0; word-spacing:0; border:0; }
+#hl { position:relative; min-width:100%; pointer-events:none; color:var(--ink); }
+#code { position:absolute; inset:0; width:100%; height:100%; min-height:0 !important; background:transparent !important; background-image:none !important; color:transparent; -webkit-text-fill-color:transparent;
+        caret-color:#e8790c; resize:none; outline:none; overflow:auto; border-radius:0; }
+#code::selection { background:rgba(47,125,225,.3); -webkit-text-fill-color:transparent; }
+.tk-k { color:#1d4fd8; font-weight:700; } .tk-s { color:#c4302b; } .tk-n { color:#0a7d3a; } .tk-c { color:#2e8b3a; font-style:italic; }
+.tk-g { color:#0a6e86; } .tk-t { color:#8a3fc9; }
+.empty { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; text-align:center; padding:24px; background:rgba(251,246,234,.94); z-index:3; color:var(--mut); }
+.empty b { color:var(--ink); font-size:1.05rem; }
+.empty.hide { display:none; }
+.statusbar { display:flex; gap:12px; align-items:center; padding:6px 12px; border-top:2px solid var(--line); background:var(--paper2); font-size:.75rem; color:var(--mut); white-space:nowrap; overflow-x:auto; scrollbar-width:none; }
+.statusbar .sp { flex:1; }
+.chip { padding:1px 8px; border-radius:20px; font-weight:700; border:1.5px solid currentColor; }
+.chip.e { color:#c62828; } .chip.w { color:#a86400; } .chip.k { color:#1b7f3b; }
+.quick { display:flex; gap:6px; padding:6px 8px; overflow-x:auto; border-top:2px solid var(--line); background:var(--paper2); scrollbar-width:none; }
+.quick button { flex:none; min-width:40px; padding:7px 10px; font:700 .95rem ui-monospace,Menlo,monospace; color:var(--ink); text-shadow:none; background-color:#fffdf7; background-image:var(--btnimg); background-size:48px 48px; border-radius:9px; box-shadow:0 2px 0 var(--st); }
+.props .rows { padding:0 12px 12px; overflow:auto; flex:1; }
+.pr { padding:8px 0; border-top:1px solid var(--line); }
+.pr span { display:block; font-size:.72rem; color:var(--mut); font-weight:700; text-transform:uppercase; letter-spacing:.4px; }
+.pr div { font-size:.92rem; word-break:break-all; margin-top:2px; }
+.pr .ccls { display:inline-block; padding:1px 9px; border-radius:20px; color:#fff; font-size:.8rem; font-weight:700; }
+.nosel { text-align:center; color:var(--mut); padding:26px 14px; font-size:.88rem; }
+.nosel svg { width:54px; height:54px; opacity:.55; display:block; margin:0 auto 8px; }
+.nosel b { display:block; color:var(--ink); margin-bottom:4px; }
+.output { margin:0 10px 12px; background:var(--paper); border:2px solid var(--st); border-radius:12px; box-shadow:0 2px 0 var(--st); overflow:hidden; display:flex; flex-direction:column; height:190px; }
+.output .phead { padding-bottom:4px; }
+.output .clr { margin-left:auto; padding:5px 10px; font-size:.8rem; color:var(--ink); text-shadow:none; background-color:#fffdf7; background-image:var(--btnimg); background-size:48px 48px; border-radius:9px; box-shadow:0 2px 0 var(--st); }
+#out { flex:1; overflow:auto; padding:4px 12px 10px; font:13px/1.55 ui-monospace,Menlo,Consolas,monospace; -webkit-overflow-scrolling:touch; }
+#out div { padding:2px 0; word-break:break-word; }
+#out .l-run { color:#1d4fd8; font-weight:700; } #out .l-err { color:#c62828; cursor:pointer; } #out .l-warn { color:#a86400; cursor:pointer; }
+#out .l-ok { color:#1b7f3b; font-weight:700; } #out .l-dim { color:var(--mut); } #out .l-err:active, #out .l-warn:active { background:rgba(0,0,0,.06); }
+.modal { position:fixed; inset:0; background:rgba(20,14,4,.55); z-index:100; display:flex; align-items:flex-start; justify-content:center; padding:20px 14px; overflow:auto; }
+.modal.hide { display:none; }
+.modal .card { width:100%; max-width:560px; margin:auto; }
+.modal textarea { min-height:26vh; font-size:14px; }
+@media (max-width: 820px) {
+  .tabs { display:flex; }
+  .panes { display:block; height:auto; }
+  .panes .pane { display:none; height:62vh; }
+  .panes[data-pane="exp"] #pExp, .panes[data-pane="code"] #pCode, .panes[data-pane="props"] #pProps { display:flex; }
+  .output { height:30vh; }
+  .filetag { display:none; }
+  #hl, #code { font-size:14px; }
+}
+.win{--mag:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236d6555' stroke-width='2.5' stroke-linecap='round'><circle cx='10' cy='10' r='6'/><path d='M15 15l6 6'/></svg>")}
 </style>
 </head>
 <body>
 <button id="soundbtn" class="sec" title="Sound on / off" aria-label="Sound on / off">🔊</button>
 <button id="themebtn" class="sec" title="Dark / light mode" aria-label="Dark / light mode">🌙</button>
 <main>
-  <h1>Place Script Editor</h1>
-
   <section class="card" id="saved">
     <h2>Saved places</h2>
     <select id="targets"><option value="">— choose a saved place —</option></select>
@@ -78,61 +193,70 @@
     </div>
     <div class="msg" id="tmsg"></div>
   </section>
-
-  <section class="card" id="up">
-    <h2>1. Open your place</h2>
-    <input id="file" type="file" accept=".rbxl">
-    <div class="msg" id="upmsg"></div>
-  </section>
-
-  <section class="card hide" id="list">
-    <h2>2. Pick a script</h2>
-    <input id="q" type="search" placeholder="Search by name or path" autocomplete="off">
-    <div class="check"><input type="checkbox" id="nobk" checked><span>Hide backup copies (paths containing "Backup")</span></div>
-    <div id="results"></div>
-    <button class="sec" id="newbtn" style="width:100%;margin-top:12px">＋ New script</button>
-  </section>
-
-  <section class="card hide" id="newp">
-    <h2>New script</h2>
-    <label for="ntype">Type</label>
-    <select id="ntype">
-      <option value="Script">Script (runs on the server)</option>
-      <option value="LocalScript">LocalScript (runs on the player)</option>
-      <option value="ModuleScript">ModuleScript (shared code)</option>
-    </select>
-    <label for="nname">Name</label>
-    <input id="nname" autocapitalize="off" autocorrect="off" autocomplete="off">
-    <label for="npq">Parent (where it goes)</label>
-    <input id="npq" type="search" placeholder="Search: Workspace, ServerScriptService, a folder…" autocomplete="off">
-    <div id="npres"></div>
-    <div class="path" id="nsel" style="margin-top:10px">No parent chosen yet.</div>
-    <label for="ncode">Code</label>
-    <textarea id="ncode" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" style="min-height:30vh"></textarea>
-    <div class="row">
-      <button class="sec" id="ncancel">Cancel</button>
-      <button id="ncreate">Create script</button>
+  <section class="win" id="win">
+    <header class="titlebar">
+      <div class="logo">&lt;/&gt;</div>
+      <h1>Place Script Editor</h1>
+      <span class="filetag" id="fileTag">No place opened</span>
+    </header>
+    <div class="toolbar" id="toolbar">
+      <button class="tb" id="bOpen"><svg viewBox="0 0 20 20"><path d="M2 5.5A1.5 1.5 0 0 1 3.5 4h4l1.7 2H16.5A1.5 1.5 0 0 1 18 7.5v7A1.5 1.5 0 0 1 16.5 16h-13A1.5 1.5 0 0 1 2 14.5z" fill="#f2a33a" stroke="#8a520a" stroke-width="1.2"/></svg>Open</button>
+      <button class="tb" id="bSave" disabled><svg viewBox="0 0 20 20"><path d="M3 3h11l3 3v11H3z" fill="#4a4338"/><rect x="6" y="3" width="7" height="5" fill="#fffdf7"/><rect x="6" y="11" width="8" height="6" fill="#fffdf7"/></svg>Save</button>
+      <button class="tb run" id="bRun" disabled><svg viewBox="0 0 20 20"><path d="M5 3l12 7-12 7z"/></svg>Run</button>
+      <button class="tb stop" id="bStop" disabled><svg viewBox="0 0 20 20"><rect x="4" y="4" width="12" height="12" rx="2" fill="#6d6555"/></svg>Stop</button>
+      <button class="tb" id="bClear"><svg viewBox="0 0 20 20"><path d="M12 3l5 5-7 7-5-5z" fill="#f2a33a" stroke="#8a520a" stroke-width="1.2"/><path d="M3 17l4-4" stroke="#8a520a" stroke-width="2" stroke-linecap="round"/></svg>Clear</button>
+      <button class="tb" id="bFind" disabled><svg viewBox="0 0 20 20" fill="none" stroke="#4a4338" stroke-width="2.2" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="5"/><path d="M12.5 12.5L17 17"/></svg>Find</button>
+      <button class="tb" id="bNew" disabled><svg viewBox="0 0 20 20" fill="none" stroke="#2faa52" stroke-width="3" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg>New</button>
+      <button class="tb" id="bDel" disabled><svg viewBox="0 0 20 20"><path d="M5 6h10l-1 11H6z" fill="#d2343c"/><rect x="4" y="3.5" width="12" height="2" rx="1" fill="#8e1f26"/></svg>Delete</button>
+      <button class="tb" id="bHelp" aria-label="Help">?</button>
     </div>
-    <div class="msg" id="nmsg"></div>
-  </section>
-
-  <section class="card hide" id="ed">
-    <div class="row" style="margin-top:0">
-      <button class="sec" id="back">← Scripts</button>
-      <button id="save" disabled>Save change</button>
-      <button class="danger" id="delscr">Delete</button>
+    <div class="tabs" id="tabs">
+      <button data-p="exp">Explorer</button><button data-p="code" class="on">Code</button><button data-p="props">Properties</button>
     </div>
-    <div class="path" id="curpath" style="margin-top:12px"></div>
-    <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off"></textarea>
-    <label>Find &amp; replace</label>
-    <input id="find" placeholder="Find" autocapitalize="off" autocorrect="off">
-    <input id="repl" placeholder="Replace with" autocapitalize="off" autocorrect="off" style="margin-top:8px">
-    <div class="row">
-      <button class="sec" id="next">Find next</button>
-      <button class="sec" id="repall">Replace all</button>
+    <div class="panes" id="panes" data-pane="exp">
+      <aside class="pane" id="pExp">
+        <div class="phead">Explorer <label class="hb"><input type="checkbox" id="nobk" checked> hide backups</label></div>
+        <div class="srch">
+          <input id="q" type="search" placeholder="Search scripts…" autocomplete="off" autocapitalize="off" spellcheck="false">
+          <label><input type="checkbox" id="qcode"> Also search inside the code</label>
+        </div>
+        <div class="tree" id="tree"><div class="note2">Tap <b>Open</b> to load a .rbxl place.</div></div>
+      </aside>
+      <section class="pane codepane" id="pCode">
+        <div class="findbar" id="fbar">
+          <input id="find" placeholder="Find in this script" autocapitalize="off" autocorrect="off" spellcheck="false">
+          <button id="fprev">↑</button><button id="fnext">↓</button><button id="fcase" title="Match case">Aa</button><span class="fc" id="fcount"></span>
+          <input id="repl" placeholder="Replace with" autocapitalize="off" autocorrect="off" spellcheck="false">
+          <button id="frep">Replace all</button><button id="fclose">✕</button>
+        </div>
+        <div class="ed" id="edBox">
+          <div class="gut" id="gut"><div class="gutin" id="gutIn"></div></div>
+          <div class="view">
+            <div class="layer" id="layer"><div class="bands" id="bands"></div><pre id="hl" aria-hidden="true"></pre></div>
+            <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" readonly></textarea>
+          </div>
+          <div class="empty" id="empty">
+            <b>No script open</b>
+            <span id="emptyTxt">Tap <b>Open</b> and pick your .rbxl place, then choose a script in the Explorer.</span>
+          </div>
+        </div>
+        <div class="quick" id="quick">
+          <button data-i="&#9;">Tab</button><button data-i="()" data-b="1">( )</button><button data-i="{}" data-b="1">{ }</button><button data-i="[]" data-b="1">[ ]</button><button data-i='""' data-b="1">" "</button>
+          <button data-i="=">=</button><button data-i="==">==</button><button data-i="~=">~=</button><button data-i=":">:</button><button data-i=".">.</button><button data-i=",">,</button><button data-i="#">#</button><button data-i="..">..</button>
+        </div>
+        <div class="statusbar" id="stat"><span id="stPos">Ln 1, Col 1</span><span id="stInfo"></span><span class="sp"></span><span id="stLint"></span></div>
+      </section>
+      <aside class="pane props" id="pProps">
+        <div class="phead">Properties</div>
+        <div class="rows" id="props"></div>
+      </aside>
     </div>
-    <div class="msg" id="edmsg"></div>
+    <section class="output">
+      <div class="phead">Output <button class="clr" id="bClear2">Clear</button></div>
+      <div id="out"><div class="l-dim">Ready. Open a place, pick a script and press Run.</div></div>
+    </section>
   </section>
+  <input id="file" type="file" accept=".rbxl" class="hide">
 
   <section class="card hide" id="pub">
     <h2>3. Publish</h2>
@@ -159,18 +283,611 @@
     <div class="msg hide" id="playbox"></div>
   </section>
   <footer class="credit">Creator of the site is: <b>Blax56</b>!</footer>
+<div class="modal hide" id="newp"><section class="card">
+    <h2>New script</h2>
+    <label for="ntype">Type</label>
+    <select id="ntype">
+      <option value="Script">Script (runs on the server)</option>
+      <option value="LocalScript">LocalScript (runs on the player)</option>
+      <option value="ModuleScript">ModuleScript (shared code)</option>
+    </select>
+    <label for="nname">Name</label>
+    <input id="nname" autocapitalize="off" autocorrect="off" autocomplete="off">
+    <label for="npq">Parent (where it goes)</label>
+    <input id="npq" type="search" placeholder="Search: Workspace, ServerScriptService, a folder…" autocomplete="off">
+    <div id="npres"></div>
+    <div class="path" id="nsel" style="margin-top:10px">No parent chosen yet.</div>
+    <label for="ncode">Code</label>
+    <textarea id="ncode" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" style="min-height:30vh"></textarea>
+    <div class="row">
+      <button class="sec" id="ncancel">Cancel</button>
+      <button id="ncreate">Create script</button>
+    </div>
+    <div class="msg" id="nmsg"></div>
+  </section></div>
 </main>
 <script>
+/* Luau syntax checker + light lint. Pure JS, no dependencies.
+   luauCheck(source) -> { errors:[{line,col,msg}], warnings:[{line,col,msg}] }            */
+(function (root) {
+"use strict";
+
+const KW = new Set("and break do else elseif end false for function if in local nil not or repeat return then true until while".split(" "));
+const BLOCK_END = new Set(["end", "else", "elseif", "until"]);
+
+const KNOWN = new Set(("game workspace Workspace script plugin shared _G _VERSION " +
+  "Instance Vector3 Vector2 CFrame Color3 UDim UDim2 Enum Rect Ray Region3 BrickColor TweenInfo NumberSequence NumberRange " +
+  "ColorSequence ColorSequenceKeypoint NumberSequenceKeypoint PhysicalProperties Axes Faces Font OverlapParams RaycastParams " +
+  "DateTime Random Vector3int16 Vector2int16 Region3int16 CatalogSearchParams DockWidgetPluginGuiInfo SharedTable PathWaypoint " +
+  "task math string table os utf8 bit32 buffer coroutine debug " +
+  "print warn error assert pcall xpcall ipairs pairs next select type typeof tostring tonumber require " +
+  "setmetatable getmetatable rawget rawset rawequal rawlen unpack newproxy collectgarbage gcinfo " +
+  "wait spawn delay tick time elapsedTime settings stats UserSettings version PluginManager loadstring getfenv setfenv " +
+  "Game Stats Version Delay Spawn Wait Tick " +
+  "Players Lighting ReplicatedStorage ServerStorage ServerScriptService StarterGui StarterPack StarterPlayer Teams SoundService " +
+  "Chat TextChatService RunService Debris TweenService MarketplaceService DataStoreService HttpService UserInputService " +
+  "ContextActionService GuiService TeleportService PhysicsService CollectionService BadgeService GroupService MessagingService " +
+  "ProximityPromptService PathfindingService Workspace").split(/\s+/));
+
+const DEPRECATED_FN = { wait: "task.wait", spawn: "task.spawn", delay: "task.delay", tick: "os.clock() or workspace:GetServerTimeNow()" };
+const DEPRECATED_METHOD = { connect: "Connect", isA: "IsA", findFirstChild: "FindFirstChild", getChildren: "GetChildren",
+  clone: "Clone", destroy: "Destroy", remove: "Destroy", waitForChild: "WaitForChild" };
+
+function lev(a, b) {
+  if (Math.abs(a.length - b.length) > 2) return 9;
+  const d = []; for (let i = 0; i <= a.length; i++) { d[i] = [i]; }
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++)
+    d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+  return d[a.length][b.length];
+}
+
+/* ---------- tokenizer ---------- */
+function tokenize(src) {
+  const toks = [], n = src.length;
+  let i = 0, line = 1, ls = 0;
+  const E = (msg, l, c) => { throw { line: l, col: c, msg }; };
+  const adv = j => { for (; i < j; i++) if (src.charCodeAt(i) === 10) { line++; ls = i + 1; } };
+  const reName = /[A-Za-z_][A-Za-z0-9_]*/y;
+  const reNum = /0[xX][0-9a-fA-F_]+|0[bB][01_]+|(?:\d[\d_]*(?:\.[\d_]*)?|\.\d[\d_]*)(?:[eE][+-]?\d+)?/y;
+  const reLong = /\[(=*)\[/y;
+  const OPS3 = ["...", "..=", "//="];
+  const OPS2 = ["==", "~=", "<=", ">=", "..", "::", "+=", "-=", "*=", "/=", "%=", "^=", "//", "->"];
+  const OPS1 = "+-*/%^#<>=(){}[];:,.&|?@";
+  if (src.charCodeAt(0) === 0xFEFF) i = 1;
+  while (i < n) {
+    const c = src[i];
+    if (c === "\n") { line++; i++; ls = i; continue; }
+    if (c === " " || c === "\t" || c === "\r" || c === "\f" || c === " ") { i++; continue; }
+    const col = i - ls + 1, l0 = line;
+    if (c === "-" && src[i + 1] === "-") {
+      reLong.lastIndex = i + 2;
+      const m = reLong.exec(src);
+      if (m) {
+        const close = "]" + m[1] + "]", e = src.indexOf(close, i + 2 + m[0].length);
+        if (e < 0) E("Unfinished long comment (missing " + close + ")", l0, col);
+        adv(e + close.length);
+      } else { let j = src.indexOf("\n", i); if (j < 0) j = n; i = j; }
+      continue;
+    }
+    if (c === '"' || c === "'") {
+      let j = i + 1;
+      for (;;) {
+        if (j >= n) E("Unfinished string (missing closing " + c + ")", l0, col);
+        const d = src[j];
+        if (d === "\\") {
+          if (src[j + 1] === "z") { j += 2; while (j < n && /\s/.test(src[j])) j++; continue; }
+          if (src[j + 1] === "\r" && src[j + 2] === "\n") j++;
+          j += 2; continue;
+        }
+        if (d === "\n") E("Unfinished string (missing closing " + c + " before the end of the line)", l0, col);
+        if (d === c) break;
+        j++;
+      }
+      adv(j + 1); toks.push({ t: "str", v: "s", line: l0, col }); continue;
+    }
+    if (c === "`") {
+      let j = i + 1;
+      for (;;) {
+        if (j >= n) E("Unfinished string (missing closing `)", l0, col);
+        const d = src[j];
+        if (d === "\\") { j += 2; continue; }
+        if (d === "`") break;
+        if (d === "{") {
+          let depth = 1; j++;
+          while (j < n && depth > 0) {
+            const e = src[j];
+            if (e === "{") depth++; else if (e === "}") depth--;
+            else if (e === '"' || e === "'") { j++; while (j < n && src[j] !== e) { if (src[j] === "\\") j++; j++; } }
+            j++;
+          }
+          if (depth > 0) E("Unfinished {interpolation} in string: missing }", l0, col);
+          continue;
+        }
+        j++;
+      }
+      adv(j + 1); toks.push({ t: "str", v: "`", line: l0, col }); continue;
+    }
+    if (c === "[") {
+      reLong.lastIndex = i;
+      const m = reLong.exec(src);
+      if (m) {
+        const close = "]" + m[1] + "]", e = src.indexOf(close, i + m[0].length);
+        if (e < 0) E("Unfinished long string (missing " + close + ")", l0, col);
+        adv(e + close.length); toks.push({ t: "str", v: "[[", line: l0, col }); continue;
+      }
+    }
+    if ((c >= "0" && c <= "9") || (c === "." && src[i + 1] >= "0" && src[i + 1] <= "9")) {
+      reNum.lastIndex = i;
+      const m = reNum.exec(src);
+      if (!m) E("Malformed number", l0, col);
+      const end = i + m[0].length;
+      if (/[A-Za-z_]/.test(src[end] || "")) E("Malformed number '" + m[0] + src[end] + "…' (a number can't be followed by letters)", l0, col);
+      toks.push({ t: "num", v: m[0], line: l0, col }); i = end; continue;
+    }
+    if (/[A-Za-z_]/.test(c)) {
+      reName.lastIndex = i;
+      const m = reName.exec(src)[0];
+      toks.push({ t: KW.has(m) ? "kw" : "name", v: m, line: l0, col }); i += m.length; continue;
+    }
+    const s3 = src.substr(i, 3), s2 = src.substr(i, 2);
+    if (OPS3.includes(s3)) { toks.push({ t: "op", v: s3, line: l0, col }); i += 3; continue; }
+    if (s2 === "!=") E("Luau uses '~=' for \"not equal\", not '!='", l0, col);
+    if (s2 === "&&") E("Luau uses 'and' instead of '&&'", l0, col);
+    if (s2 === "||") E("Luau uses 'or' instead of '||'", l0, col);
+    if (OPS2.includes(s2)) { toks.push({ t: "op", v: s2, line: l0, col }); i += 2; continue; }
+    if (c === "~") E("Unexpected '~' (not-equal is '~=')", l0, col);
+    if (c === "!") E("Luau uses 'not' instead of '!'", l0, col);
+    if (c === "“" || c === "”" || c === "‘" || c === "’")
+      E("Curly quote " + c + " found. Use straight quotes ' or \" in code (phone keyboards sometimes swap them)", l0, col);
+    if (OPS1.includes(c)) { toks.push({ t: "op", v: c, line: l0, col }); i++; continue; }
+    E("Unexpected character '" + c + "'", l0, col);
+  }
+  toks.push({ t: "eof", v: "<eof>", line, col: i - ls + 1 });
+  return toks;
+}
+
+/* ---------- parser ---------- */
+function parse(toks) {
+  let p = 0, loop = 0;
+  const stack = [], scopes = [new Set()], reads = [], writes = new Set(), declared = new Set(), warns = [];
+  const tk = () => toks[p];
+  const nx = k => toks[Math.min(p + (k || 1), toks.length - 1)];
+  const isOp = v => toks[p].t === "op" && toks[p].v === v;
+  const isKw = v => toks[p].t === "kw" && toks[p].v === v;
+  const desc = t => t.t === "eof" ? "end of file" : t.t === "str" ? "a string" : "'" + t.v + "'";
+  const fail = (msg, t) => { t = t || tk(); throw { line: t.line, col: t.col, msg }; };
+  const warn = (msg, t) => warns.push({ line: t.line, col: t.col, msg });
+  const pushScope = () => scopes.push(new Set());
+  const popScope = () => scopes.pop();
+  const declare = n => { scopes[scopes.length - 1].add(n); declared.add(n); };
+  const isLocal = n => { for (let i = scopes.length - 1; i >= 0; i--) if (scopes[i].has(n)) return true; return false; };
+  const use = t => { if (!isLocal(t.v)) reads.push(t); };
+
+  function expectOp(v, what) {
+    if (isOp(v)) { p++; return; }
+    fail("Expected '" + v + "'" + (what ? " " + what : "") + ", got " + desc(tk()));
+  }
+  function expectKw(v, what) {
+    if (isKw(v)) { p++; return; }
+    let hint = "";
+    if (v === "then" && isOp("=")) hint = " (did you mean '==' to compare?)";
+    fail("Expected '" + v + "' " + what + ", got " + desc(tk()) + hint);
+  }
+  function expectEnd() {
+    if (isKw("end")) { p++; return; }
+    const b = stack[stack.length - 1];
+    fail("Expected 'end'" + (b ? " (to close '" + b.kw + "' at line " + b.line + ")" : "") + ", got " + desc(tk()));
+  }
+  function name(what) {
+    const t = tk();
+    if (t.t !== "name") fail("Expected " + what + ", got " + desc(t));
+    p++; return t;
+  }
+
+  /* types: lenient but real */
+  function type() {
+    if (isOp("|") || isOp("&")) p++;
+    simpleType();
+    for (;;) {
+      if (isOp("?")) { p++; continue; }
+      if (isOp("|") || isOp("&")) { p++; simpleType(); continue; }
+      break;
+    }
+  }
+  function typeList(close) {
+    while (!isOp(close)) {
+      if (isOp("...")) { p++; if (!isOp(close)) type(); }
+      else {
+        if (tk().t === "name" && nx().t === "op" && nx().v === ":") p += 2;
+        type();
+        if (isOp("...")) p++;
+      }
+      if (isOp(",")) { p++; continue; }
+      break;
+    }
+  }
+  function genericArgs() { p++; typeList(">"); expectOp(">", "to close the type arguments"); }
+  function simpleType() {
+    const t = tk();
+    if (t.t === "name") {
+      p++;
+      if (t.v === "typeof" && isOp("(")) { p++; expr(); expectOp(")"); return; }
+      while (isOp(".")) { p++; name("a type name after '.'"); }
+      if (isOp("<")) genericArgs();
+      if (isOp("...")) p++;
+      return;
+    }
+    if (isOp("...")) { p++; if (!(isOp(")") || isOp(",") || isOp(">") || isOp("}") || isOp("=") || tk().t === "eof")) type(); return; }
+    if (t.t === "str" || (t.t === "kw" && (t.v === "nil" || t.v === "true" || t.v === "false"))) { p++; return; }
+    if (isOp("{")) {
+      const open = t; p++;
+      while (!isOp("}")) {
+        if (isOp("[")) { p++; type(); expectOp("]"); expectOp(":"); type(); }
+        else if (tk().t === "name" && nx().t === "op" && nx().v === ":") { p += 2; type(); }
+        else type();
+        if (isOp(",") || isOp(";")) { p++; continue; }
+        break;
+      }
+      if (!isOp("}")) fail("Expected '}' to close the table type opened at line " + open.line + ", got " + desc(tk()));
+      p++; return;
+    }
+    if (isOp("<")) { p++; /* generic function type <T>(a) -> b */ while (!isOp(">")) { name("a generic name"); if (isOp("...")) p++; if (isOp(",")) p++; else break; } expectOp(">"); }
+    if (isOp("(")) {
+      p++; typeList(")"); expectOp(")", "in the type");
+      if (isOp("->")) { p++; retType(); }
+      return;
+    }
+    fail("Expected a type, got " + desc(t));
+  }
+  function retType() {
+    if (isOp("(")) { p++; typeList(")"); expectOp(")", "in the return type"); if (isOp("->")) { p++; retType(); } return; }
+    type(); if (isOp("...")) p++;
+  }
+  function genericParams() {
+    p++;
+    while (!isOp(">")) {
+      name("a generic name"); if (isOp("...")) p++;
+      if (isOp("=")) { p++; type(); }
+      if (isOp(",")) { p++; continue; }
+      break;
+    }
+    expectOp(">", "to close the generics");
+  }
+
+  /* expressions */
+  function exprlist() { expr(); while (isOp(",")) { p++; expr(); } }
+  function callArgs(startTok) {
+    const t = tk();
+    if (t.t === "str") { p++; return 1; }
+    if (isOp("{")) { table(); return 1; }
+    p++; /* ( */
+    let count = 0;
+    if (!isOp(")")) {
+      for (;;) { expr(); count++; if (isOp(",")) { p++; continue; } break; }
+    }
+    if (!isOp(")")) fail("Expected ')' to close the '(' at line " + t.line + ", got " + desc(tk()));
+    p++; return count;
+  }
+  function table() {
+    const open = tk(); p++;
+    for (;;) {
+      if (isOp("}")) { p++; return; }
+      if (isOp("[")) { p++; expr(); expectOp("]"); expectOp("=", "after the table key"); expr(); }
+      else if (tk().t === "name" && nx().t === "op" && nx().v === "=") { p += 2; expr(); }
+      else expr();
+      if (isOp(",") || isOp(";")) { p++; continue; }
+      if (isOp("}")) { p++; return; }
+      fail("Expected ',' or '}' in the table opened at line " + open.line + ", got " + desc(tk()) + (tk().t === "eof" ? "" : " (missing a comma?)"));
+    }
+  }
+  function funcbody(isMethod, startTok) {
+    pushScope();
+    if (isMethod) declare("self");
+    if (isOp("<")) genericParams();
+    expectOp("(", "to start the function's parameters");
+    if (!isOp(")")) {
+      for (;;) {
+        if (isOp("...")) { p++; if (isOp(":")) { p++; type(); } break; }
+        const t = name("a parameter name");
+        declare(t.v);
+        if (isOp(":")) { p++; type(); }
+        if (isOp(",")) { p++; continue; }
+        break;
+      }
+    }
+    expectOp(")", "to close the parameters");
+    if (isOp(":")) { p++; retType(); }
+    const saved = loop; loop = 0;
+    stack.push({ kw: "function", line: startTok.line });
+    block();
+    expectEnd();
+    stack.pop();
+    loop = saved;
+    popScope();
+  }
+  function ifExpr() {
+    p++; expr(); expectKw("then", "in the if-expression");
+    expr();
+    while (isKw("elseif")) { p++; expr(); expectKw("then", "in the if-expression"); expr(); }
+    expectKw("else", "in the if-expression (it needs an else value)");
+    expr();
+  }
+  function primary() {
+    const t = tk();
+    if (t.t === "name") { p++; use(t); return { kind: "name", tok: t, key: t.v }; }
+    if (isOp("(")) {
+      p++; expr();
+      if (!isOp(")")) fail("Expected ')' to close the '(' at line " + t.line + ", got " + desc(tk()));
+      p++; return { kind: "paren", key: null };
+    }
+    let hint = "";
+    if (t.t === "op" && t.v === "//") hint = " (comments in Luau start with --)";
+    fail("Expected an expression, got " + desc(t) + hint);
+  }
+  function suffixed() {
+    const e = primary();
+    for (;;) {
+      const t = tk();
+      if (isOp(".")) { p++; const n = name("a name after '.'"); e.key = e.key ? e.key + "." + n.v : null; e.kind = "index"; }
+      else if (isOp("[")) {
+        p++; expr();
+        if (!isOp("]")) fail("Expected ']' to close the '[' at line " + t.line + ", got " + desc(tk()));
+        p++; e.kind = "index"; e.key = null;
+      }
+      else if (isOp(":")) {
+        p++; const n = name("a method name after ':'");
+        if (!(tk().t === "str" || isOp("(") || isOp("{"))) fail("Expected '(' after method name ':" + n.v + "', got " + desc(tk()));
+        if (DEPRECATED_METHOD[n.v]) warn("':" + n.v + "' is deprecated, use ':" + DEPRECATED_METHOD[n.v] + "'", n);
+        callArgs(t); e.kind = "call"; e.key = null;
+      }
+      else if (isOp("(") || tk().t === "str" || isOp("{")) {
+        const c = callArgs(t);
+        if (e.key === "Instance.new" && c > 1) warn("Instance.new with a parent argument is slow and discouraged. Set .Parent last instead.", t);
+        e.kind = "call"; e.key = null;
+      }
+      else break;
+    }
+    return e;
+  }
+  function simple() {
+    const t = tk();
+    if (t.t === "num" || t.t === "str") { p++; return; }
+    if (t.t === "kw") {
+      if (t.v === "nil" || t.v === "true" || t.v === "false") { p++; return; }
+      if (t.v === "function") { p++; funcbody(false, t); return; }
+      if (t.v === "if") { ifExpr(); return; }
+    }
+    if (isOp("...")) { p++; return; }
+    if (isOp("{")) { table(); return; }
+    suffixed();
+  }
+  const BIN = { "or": [1, 1], "and": [2, 2], "<": [3, 3], ">": [3, 3], "<=": [3, 3], ">=": [3, 3], "~=": [3, 3], "==": [3, 3],
+    "..": [9, 8], "+": [10, 10], "-": [10, 10], "*": [11, 11], "/": [11, 11], "//": [11, 11], "%": [11, 11], "^": [14, 13] };
+  function binPrec(t) { return (t.t === "op" || (t.t === "kw" && (t.v === "and" || t.v === "or"))) ? BIN[t.v] : null; }
+  function sub(limit) {
+    const t = tk();
+    if ((t.t === "kw" && t.v === "not") || (t.t === "op" && (t.v === "-" || t.v === "#"))) { p++; sub(12); }
+    else simple();
+    for (;;) {
+      if (isOp("::")) { p++; type(); continue; }
+      const pr = binPrec(tk());
+      if (!pr || pr[0] <= limit) break;
+      p++; sub(pr[1]);
+    }
+  }
+  function expr() { sub(0); }
+
+  /* statements */
+  function block(keep) {
+    pushScope();
+    for (;;) {
+      const t = tk();
+      if (t.t === "eof" || (t.t === "kw" && BLOCK_END.has(t.v))) break;
+      const wasReturn = statement();
+      if (isOp(";")) p++;
+      if (wasReturn) {
+        const u = tk();
+        if (!(u.t === "eof" || (u.t === "kw" && BLOCK_END.has(u.v))))
+          fail("'return' must be the last statement of its block. Code after it can never run (move the return down, or delete this)", u);
+        break;
+      }
+    }
+    if (!keep) popScope();
+  }
+  const COMPOUND = new Set(["+=", "-=", "*=", "/=", "//=", "%=", "^=", "..="]);
+  function assignName(e) { if (e.kind === "name" && !isLocal(e.tok.v)) writes.add(e.tok.v); }
+
+  function statement() {
+    const t = tk();
+    if (t.t === "kw") {
+      switch (t.v) {
+        case "if": {
+          p++; stack.push({ kw: "if", line: t.line });
+          expr(); expectKw("then", "when parsing the if statement"); block();
+          while (isKw("elseif")) { p++; expr(); expectKw("then", "after the elseif condition"); block(); }
+          if (isKw("else")) { p++; block(); }
+          expectEnd(); stack.pop(); return false;
+        }
+        case "while": {
+          p++; stack.push({ kw: "while", line: t.line });
+          expr(); expectKw("do", "when parsing the while loop"); loop++; block(); loop--; expectEnd(); stack.pop(); return false;
+        }
+        case "do": { p++; stack.push({ kw: "do", line: t.line }); block(); expectEnd(); stack.pop(); return false; }
+        case "for": {
+          p++; stack.push({ kw: "for", line: t.line });
+          const n1 = name("a loop variable name after 'for'");
+          if (isOp(":")) { p++; type(); }
+          if (isOp("=")) {
+            p++; expr(); expectOp(",", "in the numeric for loop (for i = start, stop)"); expr();
+            if (isOp(",")) { p++; expr(); }
+            expectKw("do", "when parsing the for loop");
+            pushScope(); declare(n1.v); loop++; block(); loop--; popScope();
+          } else {
+            const names = [n1.v];
+            while (isOp(",")) { p++; names.push(name("a loop variable name").v); if (isOp(":")) { p++; type(); } }
+            if (!isKw("in")) fail("Expected '=' or 'in' when parsing the for loop, got " + desc(tk()));
+            p++; exprlist(); expectKw("do", "when parsing the for loop");
+            pushScope(); names.forEach(declare); loop++; block(); loop--; popScope();
+          }
+          expectEnd(); stack.pop(); return false;
+        }
+        case "repeat": {
+          p++; stack.push({ kw: "repeat", line: t.line }); loop++;
+          block(true);
+          if (!isKw("until")) {
+            fail("Expected 'until' (to close 'repeat' at line " + t.line + "), got " + desc(tk()));
+          }
+          p++; expr(); popScope(); loop--; stack.pop(); return false;
+        }
+        case "function": {
+          p++;
+          const first = name("a function name after 'function'");
+          let isMethod = false, plain = true;
+          while (isOp(".") || isOp(":")) {
+            plain = false;
+            const colon = isOp(":"); p++;
+            name("a name after '" + (colon ? ":" : ".") + "' in the function name");
+            if (colon) { isMethod = true; break; }
+          }
+          if (plain) { if (!isLocal(first.v)) writes.add(first.v); } else use(first);
+          funcbody(isMethod, t); return false;
+        }
+        case "local": {
+          p++;
+          if (isKw("function")) {
+            const ft = tk(); p++;
+            const n = name("a function name after 'local function'");
+            declare(n.v); funcbody(false, ft); return false;
+          }
+          const names = [];
+          for (;;) {
+            names.push(name("a variable name after 'local'").v);
+            if (isOp(":")) { p++; type(); }
+            if (isOp(",")) { p++; continue; }
+            break;
+          }
+          if (isOp("=")) { p++; exprlist(); }
+          names.forEach(declare); return false;
+        }
+        case "return": {
+          p++;
+          const u = tk();
+          if (!(u.t === "eof" || (u.t === "kw" && BLOCK_END.has(u.v)) || isOp(";"))) exprlist();
+          return true;
+        }
+        case "break":
+          if (loop <= 0) fail("'break' can only be used inside a loop (for / while / repeat)");
+          p++; return false;
+        default:
+          if (t.v === "end") fail("Unexpected 'end'. There is no open 'function', 'if', 'for', 'while' or 'do' to close (one 'end' too many?)");
+          if (t.v === "else" || t.v === "elseif") fail("Unexpected '" + t.v + "' without a matching 'if'");
+          fail("Unexpected '" + t.v + "' (a statement can't start with it)");
+      }
+    }
+    if (t.t === "name") {
+      if (t.v === "continue" && !(nx().t === "op" && (nx().v === "(" || nx().v === "." || nx().v === "=" || nx().v === "[" || nx().v === ":" || nx().v === "," || COMPOUND.has(nx().v)))) {
+        if (loop <= 0) fail("'continue' can only be used inside a loop (for / while / repeat)");
+        p++; return false;
+      }
+      if (t.v === "type" && nx().t === "name" && nx(2).t === "op" && (nx(2).v === "=" || nx(2).v === "<")) { typeAlias(1); return false; }
+      if (t.v === "export" && nx().t === "name" && nx().v === "type" && nx(2).t === "name") { typeAlias(2); return false; }
+    }
+    if (!(t.t === "name" || isOp("("))) {
+      let hint = "";
+      if (isOp("//")) hint = " (comments in Luau start with --)";
+      fail("Unexpected " + desc(t) + hint);
+    }
+    const e = suffixed();
+    if (isOp("=") || isOp(",")) {
+      const targets = [e];
+      while (isOp(",")) { p++; targets.push(suffixed()); }
+      expectOp("=", "in the assignment");
+      for (const x of targets) if (x.kind !== "name" && x.kind !== "index") fail("You can only assign to a variable or a table field here", t);
+      exprlist(); targets.forEach(assignName); return false;
+    }
+    if (tk().t === "op" && COMPOUND.has(tk().v)) {
+      if (e.kind !== "name" && e.kind !== "index") fail("You can only assign to a variable or a table field here", t);
+      p++; expr(); assignName(e); return false;
+    }
+    if (e.kind !== "call") {
+      let hint = "";
+      if (isOp("+") && nx().t === "op" && nx().v === "+") hint = " (Luau has no '++'. Write: x += 1)";
+      else if (isOp("-") && nx().t === "op" && nx().v === "-") hint = "";
+      else if (isOp("==")) hint = " ('==' only compares. To set a value use a single '=')";
+      fail("Incomplete statement: expected an assignment or a function call, got " + desc(tk()) + hint);
+    }
+    return false;
+  }
+  function typeAlias(skip) {
+    p += skip; name("a type name");
+    if (isOp("<")) genericParams();
+    expectOp("=", "in the type definition");
+    type();
+  }
+
+  block();
+  if (tk().t !== "eof") {
+    const t = tk();
+    if (t.v === "end") fail("Unexpected 'end'. There is no open 'function', 'if', 'for', 'while' or 'do' to close (one 'end' too many?)");
+    if (t.v === "else" || t.v === "elseif") fail("Unexpected '" + t.v + "' without a matching 'if'");
+    if (t.v === "until") fail("Unexpected 'until' without a matching 'repeat'");
+    fail("Unexpected " + desc(t));
+  }
+  return { reads, writes, declared, warns };
+}
+
+function luauCheck(src) {
+  const out = { errors: [], warnings: [] };
+  try {
+    const toks = tokenize(String(src));
+    const r = parse(toks);
+    out.warnings = r.warns;
+    const seen = new Set();
+    for (const t of r.reads) {
+      const nm = t.v;
+      if (r.writes.has(nm)) continue;
+      const k = nm + ":" + t.line; if (seen.has(k)) continue; seen.add(k);
+      if (DEPRECATED_FN[nm] && KNOWN.has(nm)) { out.warnings.push({ line: t.line, col: t.col, msg: "'" + nm + "' is deprecated. Use " + DEPRECATED_FN[nm] + " instead" }); continue; }
+      if (KNOWN.has(nm)) continue;
+      let best = null, bd = 9;
+      const lim = nm.length <= 4 ? 1 : 2;
+      if (nm.length >= 3) for (const c of KNOWN) { const d = lev(nm.toLowerCase(), c.toLowerCase()); if (d < bd && d <= lim) { bd = d; best = c; } }
+      if (nm.length >= 3) for (const c of r.declared) { const d = lev(nm, c); if (d < bd && d <= lim) { bd = d; best = c; } }
+      out.warnings.push({ line: t.line, col: t.col, msg: "Unknown variable '" + nm + "'" + (best ? ". Did you mean '" + best + "'?" : " (not defined above, so it is nil)") });
+    }
+    out.warnings.sort((a, b) => a.line - b.line || a.col - b.col);
+  } catch (e) {
+    if (e && typeof e.line === "number") out.errors.push({ line: e.line, col: e.col, msg: e.msg });
+    else throw e;
+  }
+  return out;
+}
+
+root.luauCheck = luauCheck;
+root.luauTokenize = tokenize;
+if (typeof module !== "undefined" && module.exports) module.exports = { luauCheck, tokenize };
+})(typeof window !== "undefined" ? window : globalThis);
+
+</script>
+<script>
 const $ = id => document.getElementById(id);
-let S = null, scripts = [], containers = [], cur = null, orig = "", parentId = null;
-const say = (el, text, cls) => { el.className = "msg " + (cls || ""); el.textContent = text; };
-const show = (id, on) => $(id).classList.toggle("hide", !on);
 const store = {
   get(k) { try { return localStorage.getItem(k) || ""; } catch { return ""; } },
   set(k, v) { try { localStorage.setItem(k, v); } catch {} }
 };
+const say = (el, text, cls) => { el.className = "msg " + (cls || ""); el.textContent = text; };
+const show = (id, on) => $(id).classList.toggle("hide", !on);
+const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const LH = 22, PADY = 8;
+
+let S = null, scripts = [], containers = [], cur = null, orig = "", parentId = null, lastFile = null;
+const changed = new Set();          // script ids saved in this session
+const cache = new Map();            // id -> source (for searching inside code)
+const expanded = new Set();
+let marks = { e: new Map(), w: new Map() }, lintT = 0, runT = 0, tree = null;
+
 $("uni").value = store.get("uni"); $("place").value = store.get("place");
-/* the API key is remembered in this browser (like Studio Lite) : it stays after a refresh or closing the tab, until you press "Forget key" */
 $("key").value = store.get("last_key");
 $("forgetkey").addEventListener("click", () => { $("key").value = ""; store.set("last_key", ""); });
 $("key").addEventListener("input", () => store.set("last_key", $("key").value.trim()));
@@ -184,103 +901,389 @@ async function call(url, opts) {
   return d;
 }
 
-/* 1. upload */
-let lastFile = null;
+/* ---------------- Output ---------------- */
+function log(text, cls, loc) {
+  const d = document.createElement("div");
+  d.className = cls || ""; d.textContent = text;
+  if (loc) d.onclick = () => goTo(loc.line, loc.col);
+  const o = $("out"); o.appendChild(d); o.scrollTop = o.scrollHeight;
+  while (o.childElementCount > 400) o.removeChild(o.firstChild);
+}
+function clearOut() { $("out").textContent = ""; }
+$("bClear").onclick = clearOut; $("bClear2").onclick = clearOut;
+$("bHelp").onclick = () => {
+  log("— Help —", "l-run");
+  log("Open: load your .rbxl place. Tap a script in the Explorer to edit it.", "l-dim");
+  log("Run: checks the open script (even unsaved edits) for errors and common mistakes and prints them here. Tap a red or yellow line to jump to it.", "l-dim");
+  log("Save: keeps your change in the place. Then use Publish below the editor to send it to Roblox.", "l-dim");
+  log("Search box: finds scripts by name or path. Tick \"Also search inside the code\" to search every script's text.", "l-dim");
+  log("Find: searches inside the open script, with Replace all.", "l-dim");
+  log("Run can't start the game, so errors that only happen while playing won't show here.", "l-dim");
+};
+
+/* ---------------- Syntax highlighting ---------------- */
+const GLOBALS = new Set("game workspace script Instance Vector3 Vector2 CFrame Color3 UDim UDim2 Enum Rect Ray BrickColor TweenInfo task math string table os utf8 coroutine debug print warn error assert pcall xpcall ipairs pairs next select type typeof tostring tonumber require setmetatable getmetatable rawget rawset unpack shared _G Random NumberSequence NumberRange ColorSequence self".split(" "));
+const KWS = new Set("and break do else elseif end false for function if in local nil not or repeat return then true until while continue export".split(" "));
+const HL = /(--\[(=*)\[[\s\S]*?\]\2\]|--[^\n]*)|(\[(=*)\[[\s\S]*?\]\4\]|"(?:\\.|[^"\\\n])*"?|'(?:\\.|[^'\\\n])*'?|`(?:\\.|[^`\\])*`?)|(\b0[xX][0-9a-fA-F_]+|\b\d[\d_]*\.?\d*(?:[eE][+-]?\d+)?|\.\d+)|([A-Za-z_]\w*)/g;
+function highlight(src) {
+  let out = "", last = 0, m;
+  HL.lastIndex = 0;
+  while ((m = HL.exec(src))) {
+    out += esc(src.slice(last, m.index));
+    const t = m[0];
+    if (m[1]) out += '<span class="tk-c">' + esc(t) + "</span>";
+    else if (m[3]) out += '<span class="tk-s">' + esc(t) + "</span>";
+    else if (m[5]) out += '<span class="tk-n">' + esc(t) + "</span>";
+    else if (KWS.has(t)) out += '<span class="tk-k">' + t + "</span>";
+    else if (GLOBALS.has(t)) out += '<span class="tk-g">' + t + "</span>";
+    else out += t;
+    last = m.index + t.length;
+    if (t.length === 0) HL.lastIndex++;
+  }
+  return out + esc(src.slice(last));
+}
+
+/* ---------------- Editor ---------------- */
+const code = $("code");
+let lineCount = 0, curLine = 1;
+function paintBands() {
+  let h = "";
+  for (const [l] of marks.w) h += '<i class="w" style="top:' + (l - 1) * LH + 'px"></i>';
+  for (const [l] of marks.e) h += '<i class="e" style="top:' + (l - 1) * LH + 'px"></i>';
+  h += '<i class="cur" style="top:' + (curLine - 1) * LH + 'px"></i>';
+  $("bands").innerHTML = h;
+}
+function paintGutter() {
+  const n = code.value.split("\n").length;
+  let h = "";
+  for (let i = 1; i <= n; i++) h += '<div' + (marks.e.has(i) ? ' class="e"' : marks.w.has(i) ? ' class="w"' : "") + ">" + i + "</div>";
+  $("gutIn").innerHTML = h; lineCount = n;
+}
+function paintAll() {
+  $("hl").innerHTML = highlight(code.value) + "\n";
+  paintGutter(); paintBands(); syncScroll(); statusInfo();
+}
+let rafT = 0;
+function schedulePaint() { if (!rafT) rafT = requestAnimationFrame(() => { rafT = 0; paintAll(); }); }
+function syncScroll() {
+  $("layer").style.transform = "translate(" + (-code.scrollLeft) + "px," + (-code.scrollTop) + "px)";
+  $("gutIn").style.transform = "translateY(" + (-code.scrollTop) + "px)";
+}
+code.addEventListener("scroll", syncScroll);
+function setCode(t) { code.value = t; marks = { e: new Map(), w: new Map() }; curLine = 1; paintAll(); showLint(null); code.scrollTop = 0; code.scrollLeft = 0; syncScroll(); }
+function posInfo() {
+  const v = code.value, i = code.selectionStart;
+  const before = v.slice(0, i), ln = before.split("\n").length, col = i - before.lastIndexOf("\n");
+  $("stPos").textContent = "Ln " + ln + ", Col " + col;
+  if (ln !== curLine) { curLine = ln; paintBands(); }
+}
+function statusInfo() {
+  if (!cur) { $("stInfo").textContent = ""; return; }
+  const d = dirty();
+  $("stInfo").textContent = cur.cls + " · " + lineCount + " lines · " + code.value.length.toLocaleString() + " chars · " + (d ? "unsaved changes" : changed.has(cur.id) ? "saved to place" : "no changes");
+}
+document.addEventListener("selectionchange", () => { if (document.activeElement === code) posInfo(); });
+code.addEventListener("keyup", posInfo); code.addEventListener("click", posInfo);
+const dirty = () => !!cur && code.value !== orig;
+function refreshButtons() {
+  const has = !!cur;
+  $("bSave").disabled = !(has && dirty()); $("bRun").disabled = !has; $("bFind").disabled = !has;
+  $("bDel").disabled = !has; $("bNew").disabled = !S;
+  statusInfo(); drawProps();
+}
+function goTo(line, col) {
+  if (!cur) return;
+  setPane("code");
+  const lines = code.value.split("\n"); line = Math.max(1, Math.min(line, lines.length));
+  let idx = 0; for (let i = 0; i < line - 1; i++) idx += lines[i].length + 1;
+  idx += Math.max(0, (col || 1) - 1);
+  code.focus({ preventScroll: true });
+  code.setSelectionRange(idx, idx);
+  code.scrollTop = Math.max(0, (line - 3) * LH);
+  syncScroll(); posInfo();
+}
+function insertText(txt, back) {
+  code.focus({ preventScroll: true });
+  let ok = false; try { ok = document.execCommand("insertText", false, txt); } catch {}
+  if (!ok) { code.setRangeText(txt, code.selectionStart, code.selectionEnd, "end"); code.dispatchEvent(new Event("input")); }
+  if (back) { const p = code.selectionStart - back; code.setSelectionRange(p, p); }
+  posInfo();
+}
+code.addEventListener("input", () => {
+  schedulePaint(); refreshButtons();
+  clearTimeout(lintT); lintT = setTimeout(liveLint, 700);
+});
+code.addEventListener("keydown", e => {
+  if (e.key === "Tab") { e.preventDefault(); insertText("\t"); return; }
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") { e.preventDefault(); if (!$("bSave").disabled) $("bSave").click(); return; }
+  if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); $("bRun").click(); return; }
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "f") { e.preventDefault(); openFind(); return; }
+  if (e.key === "Enter" && !e.ctrlKey && !e.metaKey && !e.shiftKey && code.selectionStart === code.selectionEnd) {
+    const v = code.value, i = code.selectionStart, ls = v.lastIndexOf("\n", i - 1) + 1;
+    const line = v.slice(ls, i), ind = /^[ \t]*/.exec(line)[0], tr = line.trim();
+    const deeper = /(\bthen|\bdo|\belse|\brepeat|[{(])$/.test(tr.replace(/--.*$/, "").trim()) || /\bfunction\b.*\)\s*(:\s*[\w?.<>{}\[\]| ,]+)?$/.test(tr);
+    e.preventDefault(); insertText("\n" + ind + (deeper ? "\t" : ""));
+  }
+});
+document.querySelectorAll("#quick button").forEach(b => {
+  b.addEventListener("pointerdown", e => e.preventDefault());
+  b.addEventListener("click", () => { if (cur) insertText(b.dataset.i, b.dataset.b ? 1 : 0); });
+});
+
+/* live lint (silent) + Run */
+function liveLint() {
+  if (!cur) return;
+  const r = luauCheck(code.value);
+  marks = { e: new Map(), w: new Map() };
+  r.errors.forEach(x => marks.e.set(x.line, x)); r.warnings.forEach(x => { if (!marks.e.has(x.line)) marks.w.set(x.line, x); });
+  paintGutter(); paintBands(); showLint(r);
+}
+function showLint(r) {
+  const el = $("stLint"); el.textContent = "";
+  if (!r) return;
+  const add = (cls, txt) => { const s = document.createElement("span"); s.className = "chip " + cls; s.textContent = txt; el.appendChild(s); el.appendChild(document.createTextNode(" ")); };
+  if (r.errors.length) add("e", "✖ " + r.errors.length + " error");
+  else add("k", "✔ no errors");
+  if (r.warnings.length) add("w", "⚠ " + r.warnings.length);
+}
+function runCheck() {
+  if (!cur) return;
+  $("bRun").disabled = true; $("bStop").disabled = false;
+  setPane("code", true);
+  const name = cur.path;
+  log("▶ Running " + name + " (" + cur.cls + ")…", "l-run");
+  runT = setTimeout(() => {
+    runT = 0; $("bStop").disabled = true; $("bRun").disabled = !cur;
+    const r = luauCheck(code.value);
+    marks = { e: new Map(), w: new Map() };
+    r.errors.forEach(x => marks.e.set(x.line, x)); r.warnings.forEach(x => { if (!marks.e.has(x.line)) marks.w.set(x.line, x); });
+    paintGutter(); paintBands(); showLint(r);
+    r.errors.forEach(x => log("✖ " + name.split("/").pop() + ":" + x.line + ":" + x.col + "  " + x.msg, "l-err", x));
+    r.warnings.forEach(x => log("⚠ " + name.split("/").pop() + ":" + x.line + ":" + x.col + "  " + x.msg, "l-warn", x));
+    if (r.errors.length) {
+      log("✖ " + r.errors.length + " error" + (r.warnings.length ? ", " + r.warnings.length + " warning" + (r.warnings.length === 1 ? "" : "s") : "") + ". Fix the error and press Run again (it stops at the first one).", "l-err");
+      goTo(r.errors[0].line, r.errors[0].col);
+    } else {
+      log("✔ No errors found" + (r.warnings.length ? " · " + r.warnings.length + " warning" + (r.warnings.length === 1 ? "" : "s") : "") + ".", "l-ok");
+      log("Run checks syntax and common mistakes. Problems that only happen while the game is running won't show here.", "l-dim");
+    }
+  }, 220);
+}
+$("bRun").onclick = runCheck;
+$("bStop").onclick = () => { if (runT) { clearTimeout(runT); runT = 0; } $("bStop").disabled = true; $("bRun").disabled = !cur; log("■ Stopped.", "l-dim"); };
+
+/* ---------------- Find in script ---------------- */
+let matchCase = false;
+function matches() {
+  const q = $("find").value; if (!q) return [];
+  const v = matchCase ? code.value : code.value.toLowerCase(), qq = matchCase ? q : q.toLowerCase();
+  const out = []; let i = 0;
+  while ((i = v.indexOf(qq, i)) >= 0) { out.push(i); i += Math.max(1, qq.length); }
+  return out;
+}
+function countFind() { const n = matches().length; $("fcount").textContent = $("find").value ? n + " found" : ""; return n; }
+function openFind() { $("fbar").classList.add("on"); setPane("code"); $("find").focus(); countFind(); }
+function stepFind(dir) {
+  const m = matches(), q = $("find").value; countFind();
+  if (!m.length) return log("Nothing found for \"" + q + "\".", "l-dim");
+  const pos = dir > 0 ? code.selectionEnd : code.selectionStart - 1;
+  let i = dir > 0 ? m.find(x => x >= pos) : [...m].reverse().find(x => x <= pos - q.length + 1 && x < code.selectionStart);
+  if (i === undefined) i = dir > 0 ? m[0] : m[m.length - 1];
+  const before = code.value.slice(0, i), line = before.split("\n").length;
+  code.focus({ preventScroll: true }); code.setSelectionRange(i, i + q.length);
+  code.scrollTop = Math.max(0, (line - 4) * LH); syncScroll(); posInfo();
+  const ls = before.lastIndexOf("\n") + 1; code.scrollLeft = Math.max(0, (i - ls) * 8.4 - 120); syncScroll();
+}
+$("bFind").onclick = () => $("fbar").classList.contains("on") ? $("fbar").classList.remove("on") : openFind();
+$("fclose").onclick = () => $("fbar").classList.remove("on");
+$("find").addEventListener("input", countFind);
+$("find").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); stepFind(e.shiftKey ? -1 : 1); } });
+$("fnext").onclick = () => stepFind(1); $("fprev").onclick = () => stepFind(-1);
+$("fcase").onclick = () => { matchCase = !matchCase; $("fcase").classList.toggle("on", matchCase); countFind(); };
+$("frep").onclick = () => {
+  const q = $("find").value; if (!q || !cur) return;
+  const v = code.value, re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), matchCase ? "g" : "gi");
+  let n = 0; const rep = $("repl").value;
+  const nv = v.replace(re, () => { n++; return rep; });
+  if (!n) return log("Nothing found for \"" + q + "\".", "l-dim");
+  code.value = nv; schedulePaint(); refreshButtons(); countFind(); clearTimeout(lintT); lintT = setTimeout(liveLint, 300);
+  log("Replaced " + n + ". Press Save to keep it.", "l-ok");
+};
+
+/* ---------------- Explorer ---------------- */
+const ICON = {
+  folder: '<svg class="ic" viewBox="0 0 20 20"><path d="M2 5.5A1.5 1.5 0 0 1 3.5 4h4l1.7 2H16.5A1.5 1.5 0 0 1 18 7.5v7A1.5 1.5 0 0 1 16.5 16h-13A1.5 1.5 0 0 1 2 14.5z" fill="#f2a33a" stroke="#a8640d" stroke-width="1"/></svg>',
+  doc: c => '<svg class="ic" viewBox="0 0 20 20"><path d="M5 2h7l4 4v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" fill="' + c + '"/><path d="M7 9h6M7 12h6M7 15h4" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/></svg>'
+};
+const CCOL = { Script: "#2f7de1", LocalScript: "#2faa52", ModuleScript: "#8a55d6" };
+const visible = () => { const nb = $("nobk").checked; return scripts.filter(s => !nb || !s.path.toLowerCase().includes("backup")); };
+function buildTree() {
+  const root = { children: new Map(), scripts: [], path: "" };
+  for (const s of visible()) {
+    let n = root, acc = [];
+    for (const part of s.path.split("/")) {
+      acc.push(part);
+      if (!n.children.has(part)) n.children.set(part, { name: part, children: new Map(), scripts: [], path: acc.join("/") });
+      n = n.children.get(part);
+    }
+    n.scripts.push(s);
+  }
+  tree = root;
+}
+function mkRow(depth) { const d = document.createElement("div"); d.className = "tr"; d.style.paddingLeft = (8 + depth * 14) + "px"; return d; }
+function renderTree() {
+  const box = $("tree"); box.textContent = "";
+  if (!S) { box.innerHTML = '<div class="note2">Tap <b>Open</b> to load a .rbxl place.</div>'; return; }
+  buildTree();
+  const frag = document.createDocumentFragment();
+  (function walk(node, depth) {
+    const kids = [...node.children.values()].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
+    for (const k of kids) {
+      const open = expanded.has(k.path), has = k.children.size > 0;
+      if (k.scripts.length) {
+        k.scripts.forEach((s, idx) => {
+          const r = mkRow(depth);
+          r.innerHTML = '<span class="arr' + (open && has && idx === 0 ? " open" : "") + '">' + (has && idx === 0 ? "▶" : "") + "</span>" + ICON.doc(CCOL[s.cls] || "#2f7de1") + '<span class="nm"></span>' + (changed.has(s.id) ? '<span class="dot"></span>' : "");
+          r.querySelector(".nm").textContent = k.name; r.title = s.path;
+          if (cur && cur.id === s.id) r.classList.add("sel");
+          r.onclick = e => { if (has && idx === 0 && e.target.closest(".arr")) { toggle(k.path); } else openScript(s); };
+          frag.appendChild(r);
+        });
+      } else {
+        const r = mkRow(depth);
+        r.innerHTML = '<span class="arr' + (open ? " open" : "") + '">▶</span>' + ICON.folder + '<span class="nm"></span><span class="cnt">' + k.children.size + "</span>";
+        r.querySelector(".nm").textContent = k.name; r.onclick = () => toggle(k.path);
+        frag.appendChild(r);
+      }
+      if (open && has) walk(k, depth + 1);
+    }
+  })(tree, 0);
+  box.appendChild(frag);
+  if (!box.firstChild) box.innerHTML = '<div class="note2">No scripts found.</div>';
+}
+function toggle(p) { expanded.has(p) ? expanded.delete(p) : expanded.add(p); renderTree(); }
+function expandTo(path) { const parts = path.split("/"); let acc = []; for (let i = 0; i < parts.length - 1; i++) { acc.push(parts[i]); expanded.add(acc.join("/")); } }
+function markHtml(text, words) {
+  let h = esc(text);
+  words.forEach(w => { if (w) h = h.replace(new RegExp("(" + esc(w).replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "ig"), "<mark>$1</mark>"); });
+  return h;
+}
+let searchToken = 0;
+function hitRow(s, words, snippet, line) {
+  const r = document.createElement("div"); r.className = "tr hit";
+  r.innerHTML = ICON.doc(CCOL[s.cls] || "#2f7de1") + '<span class="nm">' + markHtml(s.path.split("/").pop(), snippet ? [] : words) + '<span class="sub">' + (snippet ? "L" + line + ": " + markHtml(snippet, words) : markHtml(s.path, words)) + "</span></span>" + (changed.has(s.id) ? '<span class="dot"></span>' : "");
+  r.title = s.path; r.onclick = () => openScript(s, line);
+  return r;
+}
+async function fetchSource(s) {
+  if (cache.has(s.id)) return cache.get(s.id);
+  const d = await call("/api/script?s=" + S + "&id=" + s.id);
+  cache.set(s.id, d.source); return d.source;
+}
+async function doSearch() {
+  const raw = $("q").value.trim(), box = $("tree"), tok = ++searchToken;
+  if (!S) return;
+  if (!raw) return renderTree();
+  const words = raw.toLowerCase().split(/\s+/).filter(Boolean);
+  if (!$("qcode").checked) {
+    const hits = visible().filter(s => { const p = s.path.toLowerCase(); return words.every(w => p.includes(w)); });
+    box.textContent = "";
+    hits.slice(0, 80).forEach(s => box.appendChild(hitRow(s, words)));
+    const n = document.createElement("div"); n.className = "note2"; n.textContent = hits.length ? hits.length + " match" + (hits.length === 1 ? "" : "es") + (hits.length > 80 ? ". Showing 80, type more to narrow." : ".") : "No script matches.";
+    box.appendChild(n); return;
+  }
+  /* search inside the code of every script (downloads them one by one, then remembers them) */
+  const list = visible(), needle = raw.toLowerCase();
+  box.textContent = "";
+  const status = document.createElement("div"); status.className = "note2"; box.appendChild(status);
+  let done = 0, found = 0, idx = 0;
+  const worker = async () => {
+    while (idx < list.length && tok === searchToken && found < 60) {
+      const s = list[idx++];
+      try {
+        const src = await fetchSource(s);
+        if (tok !== searchToken) return;
+        const lo = src.toLowerCase(), at = lo.indexOf(needle);
+        if (at >= 0) {
+          const line = src.slice(0, at).split("\n").length, text = src.split("\n")[line - 1].trim().slice(0, 90);
+          box.insertBefore(hitRow(s, [raw], text, line), status); found++;
+        }
+      } catch {}
+      done++; status.textContent = "Searching code… " + done + "/" + list.length + " · " + found + " found";
+    }
+  };
+  await Promise.all([worker(), worker(), worker(), worker(), worker(), worker()]);
+  if (tok === searchToken) status.textContent = found ? found + " script" + (found === 1 ? "" : "s") + " contain \"" + raw + "\"" + (found >= 60 ? " (showing the first 60)" : ".") : "Nothing found in " + done + " scripts.";
+}
+let qT = 0;
+$("q").addEventListener("input", () => { clearTimeout(qT); qT = setTimeout(doSearch, $("qcode").checked ? 450 : 80); });
+$("qcode").addEventListener("change", doSearch);
+$("nobk").addEventListener("change", () => { $("q").value.trim() ? doSearch() : renderTree(); });
+
+/* ---------------- Properties ---------------- */
+function drawProps() {
+  const b = $("props");
+  if (!cur) { b.innerHTML = '<div class="nosel"><svg viewBox="0 0 24 24" fill="none" stroke="#6d6555" stroke-width="1.6" stroke-linejoin="round"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M3 7l9 5 9-5M12 12v10"/></svg><b>No object selected</b>Select a script to view its properties.</div>'; return; }
+  const parts = cur.path.split("/"), nm = parts.pop(), par = parts.join("/") || "(top level)";
+  const st = dirty() ? "Unsaved changes" : changed.has(cur.id) ? "Saved to place (not published)" : "Unchanged";
+  const rows = [["Name", nm], ["ClassName", '<span class="ccls" style="background:' + (CCOL[cur.cls] || "#555") + '">' + cur.cls + "</span>", true], ["Parent", par], ["Lines", String(lineCount)], ["Characters", code.value.length.toLocaleString()], ["Status", st]];
+  b.innerHTML = rows.map(r => '<div class="pr"><span>' + r[0] + "</span><div>" + (r[2] ? r[1] : esc(r[1])) + "</div></div>").join("");
+}
+
+/* ---------------- Open a place / a script ---------------- */
+function setPane(p, quiet) {
+  const w = $("panes"); if (w.dataset.pane === p) return;
+  w.dataset.pane = p;
+  document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.p === p));
+}
+document.querySelectorAll("#tabs button").forEach(b => b.onclick = () => setPane(b.dataset.p));
+$("bOpen").onclick = () => $("file").click();
 async function openFile(f) {
-  if (!f.name.toLowerCase().endsWith(".rbxl")) return say($("upmsg"), "Please pick a .rbxl file.", "err");
-  // forget everything from the previous file first, so nothing old can stay on screen
-  S = null; scripts = []; containers = []; cur = null; orig = ""; parentId = null;
-  $("code").value = ""; $("q").value = ""; $("results").textContent = "";
-  for (const m of ["edmsg", "pubmsg", "changed"]) { $(m).textContent = ""; $(m).className = "msg"; }
-  $("playbox").textContent = ""; $("playbox").className = "msg hide";
-  show("list", false); show("pub", false); show("ed", false);
-  say($("upmsg"), "Reading place… this can take up to a minute for big places.");
+  if (!f.name.toLowerCase().endsWith(".rbxl")) return log("Please pick a .rbxl file.", "l-err");
+  if (dirty() && !confirm("The open script has unsaved changes. Open another place anyway?")) return;
+  S = null; scripts = []; containers = []; cur = null; orig = ""; parentId = null; changed.clear(); cache.clear(); expanded.clear(); searchToken++;
+  setCode(""); code.readOnly = true; $("q").value = "";
+  for (const m of ["pubmsg", "changed"]) { $(m).textContent = ""; $(m).className = "msg"; }
+  $("playbox").textContent = ""; $("playbox").className = "msg hide"; show("pub", false);
+  $("empty").classList.remove("hide"); $("emptyTxt").textContent = "Reading your place…";
+  refreshButtons(); renderTree();
+  log("Reading " + f.name + "… this can take up to a minute for big places.", "l-dim");
+  $("fileTag").textContent = f.name;
   try {
     const d = await call("/api/scan", { method: "POST", headers: { "Content-Type": "application/octet-stream" }, body: f });
-    lastFile = f;
-    S = d.session; scripts = d.scripts; containers = d.containers || []; cur = null; parentId = null;
-    say($("upmsg"), "Found " + scripts.length + " scripts in " + f.name, "ok");
-    show("list", true); show("pub", true); show("ed", false);
-    $("changed").textContent = "No changes yet.";
-    render();
-  } catch (e) { say($("upmsg"), e.message, "err"); }
-  $("file").value = ""; // lets you pick the same file again
+    lastFile = f; S = d.session; scripts = d.scripts; containers = d.containers || [];
+    log("✔ Opened " + f.name + ": " + scripts.length + " scripts.", "l-ok");
+    $("emptyTxt").innerHTML = "Pick a script in the <b>Explorer</b> to start editing.";
+    show("pub", true); $("changed").textContent = "No changes yet.";
+    renderTree(); refreshButtons(); setPane("exp");
+  } catch (e) { log("✖ " + e.message, "l-err"); $("emptyTxt").textContent = "Tap Open and pick your .rbxl place."; $("fileTag").textContent = "No place opened"; }
+  $("file").value = "";
 }
 $("file").addEventListener("change", () => { const f = $("file").files[0]; if (f) openFile(f); });
-
-/* 2. list */
-function render() {
-  const words = $("q").value.toLowerCase().split(/\s+/).filter(Boolean);
-  const nobk = $("nobk").checked;
-  const hits = scripts.filter(s => {
-    const p = s.path.toLowerCase();
-    return (!nobk || !p.includes("backup")) && words.every(w => p.includes(w));
-  });
-  const box = $("results"); box.textContent = "";
-  hits.slice(0, 40).forEach(s => {
-    const div = document.createElement("div"); div.className = "item";
-    const name = s.path.split("/").pop();
-    const b = document.createElement("b"); b.textContent = name;
-    const tag = document.createElement("span"); tag.className = "tag"; tag.textContent = s.cls;
-    b.appendChild(tag);
-    const sm = document.createElement("small"); sm.textContent = s.path + " · " + s.len.toLocaleString() + " chars";
-    div.append(b, sm);
-    div.onclick = () => openScript(s);
-    box.appendChild(div);
-  });
-  const more = document.createElement("small"); more.className = "note";
-  more.textContent = hits.length > 40 ? hits.length + " matches. Showing 40, type more to narrow." : hits.length + " matches.";
-  box.appendChild(more);
-}
-$("q").addEventListener("input", render);
-$("nobk").addEventListener("change", render);
-
-/* 3. edit */
-async function openScript(s) {
+async function openScript(s, line) {
+  if (cur && cur.id !== s.id && dirty() && !confirm("You have unsaved changes in the open script. Leave without saving?")) return;
   try {
-    const d = await call("/api/script?s=" + S + "&id=" + s.id);
-    cur = s; orig = d.source;
-    $("code").value = d.source;
-    $("curpath").textContent = s.path + " (" + s.cls + ")";
-    $("save").disabled = true; say($("edmsg"), "");
-    show("list", false); show("ed", true);
-    window.scrollTo(0, 0);
-  } catch (e) { say($("upmsg"), e.message, "err"); }
+    const src = await fetchSource(s);
+    cur = s; orig = src; setCode(src); code.readOnly = false;
+    $("empty").classList.add("hide"); $("fileTag").textContent = lastFile ? lastFile.name + " · " + s.path.split("/").pop() : s.path;
+    expandTo(s.path); if (!$("q").value.trim()) renderTree();
+    refreshButtons(); setPane("code"); liveLint();
+    if (line) goTo(line, 1);
+  } catch (e) { log("✖ " + e.message, "l-err"); }
 }
-const dirty = () => cur && $("code").value !== orig;
-$("code").addEventListener("input", () => { $("save").disabled = !dirty(); });
-$("back").onclick = () => {
-  if (dirty() && !confirm("You have unsaved changes. Leave without saving?")) return;
-  show("ed", false); show("list", true); cur = null;
-};
-$("save").onclick = async () => {
-  $("save").disabled = true; say($("edmsg"), "Saving…");
+$("bSave").onclick = async () => {
+  if (!cur) return;
+  $("bSave").disabled = true;
   try {
-    const d = await call("/api/script?s=" + S + "&id=" + cur.id, { method: "POST", headers: { "Content-Type": "text/plain" }, body: $("code").value });
-    orig = $("code").value; cur.len = d.len;
-    say($("edmsg"), "Saved. Not published yet, use step 3 below.", "ok");
+    const d = await call("/api/script?s=" + S + "&id=" + cur.id, { method: "POST", headers: { "Content-Type": "text/plain" }, body: code.value });
+    orig = code.value; cur.len = d.len; cache.set(cur.id, orig); changed.add(cur.id);
+    log("💾 Saved " + cur.path.split("/").pop() + ". Not published yet, use Publish below.", "l-ok");
     $("changed").textContent = d.changed + " script" + (d.changed === 1 ? "" : "s") + " changed and ready to upload.";
-  } catch (e) { $("save").disabled = false; say($("edmsg"), e.message, "err"); }
-};
-$("next").onclick = () => {
-  const t = $("code"), q = $("find").value; if (!q) return;
-  let i = t.value.indexOf(q, t.selectionEnd);
-  if (i < 0) { i = t.value.indexOf(q); if (i < 0) return say($("edmsg"), "Not found.", "err"); }
-  t.focus(); t.setSelectionRange(i, i + q.length);
-  const line = t.value.slice(0, i).split("\n").length;
-  t.scrollTop = Math.max(0, (line - 4) * 19);
-  say($("edmsg"), "Line " + line);
-};
-$("repall").onclick = () => {
-  const q = $("find").value; if (!q) return;
-  const parts = $("code").value.split(q), n = parts.length - 1;
-  if (!n) return say($("edmsg"), "Not found.", "err");
-  $("code").value = parts.join($("repl").value);
-  $("save").disabled = !dirty();
-  say($("edmsg"), "Replaced " + n + ". Tap Save change to keep it.", "ok");
+    refreshButtons(); if (!$("q").value.trim()) renderTree();
+  } catch (e) { $("bSave").disabled = false; log("✖ Save failed: " + e.message, "l-err"); }
 };
 
-/* new script */
+/* ---------------- New script ---------------- */
 const PREFERRED = ["Workspace","ServerScriptService","ServerStorage","ReplicatedStorage","ReplicatedFirst","StarterGui","StarterPack","StarterPlayer","StarterPlayerScripts","StarterCharacterScripts"];
 function renderParents() {
   const words = $("npq").value.toLowerCase().split(/\s+/).filter(Boolean);
@@ -297,8 +1300,8 @@ function renderParents() {
     box.appendChild(div);
   });
 }
-$("newbtn").onclick = () => { show("list", false); show("newp", true); say($("nmsg"), ""); renderParents(); window.scrollTo(0, 0); };
-$("ncancel").onclick = () => { show("newp", false); show("list", true); };
+$("bNew").onclick = () => { if (!S) return; show("newp", true); say($("nmsg"), ""); renderParents(); };
+$("ncancel").onclick = () => show("newp", false);
 $("npq").addEventListener("input", renderParents);
 $("ncreate").onclick = async () => {
   const name = $("nname").value.trim();
@@ -307,34 +1310,33 @@ $("ncreate").onclick = async () => {
   $("ncreate").disabled = true; say($("nmsg"), "Creating…");
   try {
     const d = await call("/api/add?s=" + S, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ cls: $("ntype").value, name, parentId, source: $("ncode").value }) });
-    scripts.push(d.script);
+    scripts.push(d.script); changed.add(d.script.id); cache.set(d.script.id, $("ncode").value);
     $("changed").textContent = d.changed + " script" + (d.changed === 1 ? "" : "s") + " changed or added, ready to upload.";
-    $("nname").value = ""; $("ncode").value = "";
-    show("newp", false); render();
-    await openScript(d.script);
-    say($("edmsg"), "Created. Not published yet, use step 3 below.", "ok");
+    $("nname").value = ""; $("ncode").value = ""; show("newp", false);
+    log("＋ Created " + d.script.path + ". Not published yet.", "l-ok");
+    renderTree(); await openScript(d.script);
   } catch (e) { say($("nmsg"), e.message, "err"); }
   $("ncreate").disabled = false;
 };
 
-
-/* delete the open script */
-function applyLists(d) {
-  scripts = d.scripts; containers = d.containers || containers; render();
-  $("changed").textContent = "Place changed. Use step 3 to upload or download.";
-}
-$("delscr").onclick = async () => {
+/* ---------------- Delete ---------------- */
+$("bDel").onclick = async () => {
   if (!cur) return;
   try {
     const d = await call("/api/delete?s=" + S, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ id: cur.id, dry: 1 }) });
     const extra = d.total > 1 ? " It also contains " + (d.total - 1) + " other item" + (d.total === 2 ? "" : "s") + " that will be deleted too." : "";
     if (!confirm("Delete \"" + cur.path.split("/").pop() + "\"?" + extra + " Nothing is published until you upload.")) return;
     const r = await call("/api/delete?s=" + S, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify({ id: cur.id }) });
-    cur = null; orig = ""; $("code").value = "";
-    applyLists(r); show("ed", false); show("list", true);
-    window.scrollTo(0, 0);
-  } catch (e) { say($("edmsg"), e.message, "err"); }
+    log("🗑 Deleted " + cur.path + ".", "l-ok");
+    cur = null; orig = ""; setCode(""); code.readOnly = true; $("empty").classList.remove("hide"); $("fileTag").textContent = lastFile ? lastFile.name : "";
+    scripts = r.scripts; containers = r.containers || containers;
+    $("changed").textContent = "Place changed. Use Publish to upload or download.";
+    renderTree(); refreshButtons();
+  } catch (e) { log("✖ " + e.message, "l-err"); }
 };
+
+refreshButtons(); paintAll(); drawProps();
+
 
 /* saved places: name + universe + place + API key (this device only) + the last .rbxl you opened */
 const idb = () => new Promise((ok, no) => { try { const r = indexedDB.open("places", 1); r.onupgradeneeded = () => r.result.createObjectStore("files"); r.onsuccess = () => ok(r.result); r.onerror = () => no(r.error); } catch (e) { no(e); } });
