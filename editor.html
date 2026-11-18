@@ -66,7 +66,7 @@
 body { padding-top: 62px; }
 main { max-width: 1000px; }
 #saved, #pub { width: 100%; max-width: 640px; margin-left: auto; margin-right: auto; }
-.win { --paper:#fbf6ea; --paper2:#f3ecdb; --ink:#1d1a14; --mut:#6d6555; --line:#cfc3a8; --st:#3a2a12; --or:#f08a1c; --gr:#2faa52; --rd:#d2343c;
+.win { --paper:#fbf6ea; --paper2:#f3ecdb; --ink:#1d1a14; --mut:#6d6555; --line:#cfc3a8; --st:#3a2a12; --or:#f08a1c; --gr:#2faa52; --rd:#d2343c; --btn:#fffdf7; --inp:#fff; --edbg:#fffdf8; --ov:rgba(251,246,234,.94); --gutnum:#8a826f; --k:#1d4fd8; --s:#c4302b; --n:#0a7d3a; --c:#2e8b3a; --g:#0a6e86; --ebg:#ffd9d9; --ecol:#b3262e; --wbg:#fff1c9; --wcol:#8a5a00; --o-run:#1d4fd8; --o-err:#c62828; --o-warn:#a86400; --o-ok:#1b7f3b; --mk:#ffd98a;
        background-color: var(--paper); background-image: var(--btnimg); background-size: 64px 64px; color: var(--ink);
        border: 3px solid var(--st); border-radius: 18px; box-shadow: 0 6px 0 var(--shadow), 0 14px 30px rgba(0,0,0,.18); overflow: hidden; color-scheme: light; }
 .titlebar { display:flex; align-items:center; gap:10px; padding:10px 12px 6px; }
@@ -76,16 +76,15 @@ main { max-width: 1000px; }
 .toolbar { display:flex; gap:7px; padding:6px 10px 10px; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
 .toolbar::-webkit-scrollbar { display:none; }
 .tb { flex:none; display:flex; align-items:center; gap:6px; padding:8px 12px; font-size:.92rem; font-weight:700; color:var(--ink); text-shadow:none;
-      background-color:#fffdf7; background-image: var(--btnimg); background-size:48px 48px; border:2px solid var(--st); border-radius:11px; box-shadow:0 3px 0 var(--st); white-space:nowrap; }
+      background-color:var(--btn); background-image: var(--btnimg); background-size:48px 48px; border:2px solid var(--st); border-radius:11px; box-shadow:0 3px 0 var(--st); white-space:nowrap; }
 .tb svg { width:16px; height:16px; flex:none; }
 .tb.run { background-color:var(--gr); color:#fff; text-shadow:0 1px 0 rgba(0,0,0,.4); }
 .tb.run svg { fill:#fff; }
 .tb.stop:not(:disabled) { background-color:var(--rd); color:#fff; text-shadow:0 1px 0 rgba(0,0,0,.4); }
 .tb.stop:not(:disabled) svg { fill:#fff; }
-.tb.warn { background-color:#fff0d6; }
 .tb:disabled { opacity:.45; box-shadow:0 1px 0 var(--st); }
 .tabs { display:none; padding:0 10px 8px; gap:6px; }
-.tabs button { flex:1; padding:8px 4px; font-size:.88rem; color:var(--ink); text-shadow:none; background-color:#fffdf7; border-radius:10px; box-shadow:0 2px 0 var(--st); background-image:var(--btnimg); background-size:48px 48px; }
+.tabs button { flex:1; padding:8px 4px; font-size:.88rem; color:var(--ink); text-shadow:none; background-color:var(--btn); border-radius:10px; box-shadow:0 2px 0 var(--st); background-image:var(--btnimg); background-size:48px 48px; }
 .tabs button.on { background-color:var(--or); color:#fff; text-shadow:0 1px 0 rgba(0,0,0,.4); }
 .panes { display:grid; grid-template-columns: 250px 1fr 210px; gap:10px; padding:0 10px 10px; height:520px; }
 .pane { background:var(--paper); border:2px solid var(--st); border-radius:12px; min-width:0; min-height:0; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 2px 0 var(--st); }
@@ -94,7 +93,7 @@ main { max-width: 1000px; }
 .hb { margin-left:auto; display:flex; align-items:center; gap:5px; font-size:.72rem; color:var(--mut); font-weight:600; cursor:pointer; }
 .hb input { width:auto; margin:0; padding:0; }
 .srch { padding:0 10px 8px; display:flex; flex-direction:column; gap:6px; }
-.srch input[type=search] { padding:9px 10px 9px 32px; font-size:16px; border:2px solid var(--st); border-radius:10px; background:#fff var(--mag) no-repeat 9px 50%; background-size:16px; color:var(--ink); }
+.srch input[type=search] { padding:9px 10px 9px 32px; font-size:16px; border:2px solid var(--st); border-radius:10px; background:var(--inp) var(--mag) no-repeat 9px 50%; background-size:16px; color:var(--ink); }
 .srch label { display:flex; align-items:center; gap:7px; margin:0; font-size:.78rem; color:var(--mut); }
 .srch label input { width:auto; padding:0; margin:0; }
 .tree { flex:1; overflow:auto; padding:0 4px 10px; -webkit-overflow-scrolling:touch; }
@@ -108,7 +107,7 @@ main { max-width: 1000px; }
 .tr .cnt { font-size:.68rem; color:var(--mut); }
 .tr .dot { width:8px; height:8px; border-radius:50%; background:var(--or); flex:none; }
 .tr .sub { display:block; font-size:.7rem; color:var(--mut); font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.tr mark { background:#ffd98a; color:inherit; border-radius:3px; padding:0 1px; }
+.tr mark { background:var(--mk); color:#1d1a14; border-radius:3px; padding:0 1px; }
 .tr.hit { align-items:flex-start; }
 .tr.hit .ic { margin-top:2px; }
 .tr.hit .nm { white-space:normal; }
@@ -116,16 +115,16 @@ main { max-width: 1000px; }
 .codepane { position:relative; }
 .findbar { display:none; flex-wrap:wrap; gap:6px; padding:8px 10px; border-bottom:2px solid var(--line); background:var(--paper2); }
 .findbar.on { display:flex; }
-.findbar input { flex:1 1 120px; min-width:0; padding:8px 10px; font-size:16px; border:2px solid var(--st); border-radius:9px; background:#fff; color:var(--ink); }
-.findbar button { padding:7px 10px; font-size:.85rem; color:var(--ink); text-shadow:none; background-color:#fffdf7; background-image:var(--btnimg); background-size:48px 48px; box-shadow:0 2px 0 var(--st); border-radius:9px; }
+.findbar input { flex:1 1 120px; min-width:0; padding:8px 10px; font-size:16px; border:2px solid var(--st); border-radius:9px; background:var(--inp); color:var(--ink); }
+.findbar button { padding:7px 10px; font-size:.85rem; color:var(--ink); text-shadow:none; background-color:var(--btn); background-image:var(--btnimg); background-size:48px 48px; box-shadow:0 2px 0 var(--st); border-radius:9px; }
 .findbar button.on { background-color:var(--or); color:#fff; }
 .findbar .fc { font-size:.75rem; color:var(--mut); align-self:center; min-width:48px; }
-.ed { flex:1; display:flex; min-height:0; position:relative; background:#fffdf8; }
+.ed { flex:1; display:flex; min-height:0; position:relative; background:var(--edbg); }
 .gut { width:48px; flex:none; overflow:hidden; background:var(--paper2); border-right:2px solid var(--line); position:relative; }
-.gutin { position:absolute; left:0; right:0; top:0; padding:8px 0; font:15px/22px ui-monospace,Menlo,Consolas,monospace; text-align:right; color:#8a826f; will-change:transform; }
+.gutin { position:absolute; left:0; right:0; top:0; padding:8px 0; font:15px/22px ui-monospace,Menlo,Consolas,monospace; text-align:right; color:var(--gutnum); will-change:transform; }
 .gutin div { padding-right:8px; height:22px; }
-.gutin div.e { background:#ffd9d9; color:#b3262e; font-weight:800; }
-.gutin div.w { background:#fff1c9; color:#8a5a00; font-weight:800; }
+.gutin div.e { background:var(--ebg); color:var(--ecol); font-weight:800; }
+.gutin div.w { background:var(--wbg); color:var(--wcol); font-weight:800; }
 .view { position:relative; flex:1; min-width:0; overflow:hidden; }
 .layer { position:absolute; left:0; top:0; will-change:transform; }
 .bands { position:absolute; left:0; top:8px; width:100000px; pointer-events:none; }
@@ -138,17 +137,17 @@ main { max-width: 1000px; }
 #code { position:absolute; inset:0; width:100%; height:100%; min-height:0 !important; background:transparent !important; background-image:none !important; color:transparent; -webkit-text-fill-color:transparent;
         caret-color:#e8790c; resize:none; outline:none; overflow:auto; border-radius:0; }
 #code::selection { background:rgba(47,125,225,.3); -webkit-text-fill-color:transparent; }
-.tk-k { color:#1d4fd8; font-weight:700; } .tk-s { color:#c4302b; } .tk-n { color:#0a7d3a; } .tk-c { color:#2e8b3a; font-style:italic; }
-.tk-g { color:#0a6e86; } .tk-t { color:#8a3fc9; }
-.empty { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; text-align:center; padding:24px; background:rgba(251,246,234,.94); z-index:3; color:var(--mut); }
+.tk-k { color:var(--k); font-weight:700; } .tk-s { color:var(--s); } .tk-n { color:var(--n); } .tk-c { color:var(--c); font-style:italic; }
+.tk-g { color:var(--g); } .tk-t { color:#8a3fc9; }
+.empty { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; text-align:center; padding:24px; background:var(--ov); z-index:3; color:var(--mut); }
 .empty b { color:var(--ink); font-size:1.05rem; }
 .empty.hide { display:none; }
 .statusbar { display:flex; gap:12px; align-items:center; padding:6px 12px; border-top:2px solid var(--line); background:var(--paper2); font-size:.75rem; color:var(--mut); white-space:nowrap; overflow-x:auto; scrollbar-width:none; }
 .statusbar .sp { flex:1; }
 .chip { padding:1px 8px; border-radius:20px; font-weight:700; border:1.5px solid currentColor; }
-.chip.e { color:#c62828; } .chip.w { color:#a86400; } .chip.k { color:#1b7f3b; }
+.chip.e { color:var(--o-err); } .chip.w { color:var(--o-warn); } .chip.k { color:var(--o-ok); }
 .quick { display:flex; gap:6px; padding:6px 8px; overflow-x:auto; border-top:2px solid var(--line); background:var(--paper2); scrollbar-width:none; }
-.quick button { flex:none; min-width:40px; padding:7px 10px; font:700 .95rem ui-monospace,Menlo,monospace; color:var(--ink); text-shadow:none; background-color:#fffdf7; background-image:var(--btnimg); background-size:48px 48px; border-radius:9px; box-shadow:0 2px 0 var(--st); }
+.quick button { flex:none; min-width:40px; padding:7px 10px; font:700 .95rem ui-monospace,Menlo,monospace; color:var(--ink); text-shadow:none; background-color:var(--btn); background-image:var(--btnimg); background-size:48px 48px; border-radius:9px; box-shadow:0 2px 0 var(--st); }
 .props .rows { padding:0 12px 12px; overflow:auto; flex:1; }
 .pr { padding:8px 0; border-top:1px solid var(--line); }
 .pr span { display:block; font-size:.72rem; color:var(--mut); font-weight:700; text-transform:uppercase; letter-spacing:.4px; }
@@ -159,11 +158,11 @@ main { max-width: 1000px; }
 .nosel b { display:block; color:var(--ink); margin-bottom:4px; }
 .output { margin:0 10px 12px; background:var(--paper); border:2px solid var(--st); border-radius:12px; box-shadow:0 2px 0 var(--st); overflow:hidden; display:flex; flex-direction:column; height:190px; }
 .output .phead { padding-bottom:4px; }
-.output .clr { margin-left:auto; padding:5px 10px; font-size:.8rem; color:var(--ink); text-shadow:none; background-color:#fffdf7; background-image:var(--btnimg); background-size:48px 48px; border-radius:9px; box-shadow:0 2px 0 var(--st); }
+.output .clr { margin-left:auto; padding:5px 10px; font-size:.8rem; color:var(--ink); text-shadow:none; background-color:var(--btn); background-image:var(--btnimg); background-size:48px 48px; border-radius:9px; box-shadow:0 2px 0 var(--st); }
 #out { flex:1; overflow:auto; padding:4px 12px 10px; font:13px/1.55 ui-monospace,Menlo,Consolas,monospace; -webkit-overflow-scrolling:touch; }
 #out div { padding:2px 0; word-break:break-word; }
-#out .l-run { color:#1d4fd8; font-weight:700; } #out .l-err { color:#c62828; cursor:pointer; } #out .l-warn { color:#a86400; cursor:pointer; }
-#out .l-ok { color:#1b7f3b; font-weight:700; } #out .l-dim { color:var(--mut); } #out .l-err:active, #out .l-warn:active { background:rgba(0,0,0,.06); }
+#out .l-run { color:var(--o-run); font-weight:700; } #out .l-err { color:var(--o-err); cursor:pointer; } #out .l-warn { color:var(--o-warn); cursor:pointer; }
+#out .l-ok { color:var(--o-ok); font-weight:700; } #out .l-dim { color:var(--mut); } #out .l-err:active, #out .l-warn:active { background:rgba(0,0,0,.06); }
 .modal { position:fixed; inset:0; background:rgba(20,14,4,.55); z-index:100; display:flex; align-items:flex-start; justify-content:center; padding:20px 14px; overflow:auto; }
 .modal.hide { display:none; }
 .modal .card { width:100%; max-width:560px; margin:auto; }
@@ -177,6 +176,15 @@ main { max-width: 1000px; }
   .filetag { display:none; }
   #hl, #code { font-size:14px; }
 }
+
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .win { --paper:#1d2027; --paper2:#171a20; --ink:#eceef2; --mut:#9aa1ad; --line:#343a45; --st:#050608; --btn:#2a2f39; --inp:#12141a; --edbg:#12141a; --ov:rgba(29,32,39,.94); --gutnum:#6b7384; --k:#7aa7ff; --s:#ff8a80; --n:#6fdc8c; --c:#7fbf7f; --g:#5fd0e6; --ebg:#4a2326; --ecol:#ff8a8a; --wbg:#4a3a14; --wcol:#ffd27a; --o-run:#7aa7ff; --o-err:#ff8a8a; --o-warn:#ffd27a; --o-ok:#6fdc8c; --mk:#c99a2e; color-scheme:dark; } :root:not([data-theme="light"]) .tb:not(.run):not(.stop) svg { filter:brightness(1.9); } }
+:root[data-theme="dark"] .win { --paper:#1d2027; --paper2:#171a20; --ink:#eceef2; --mut:#9aa1ad; --line:#343a45; --st:#050608; --btn:#2a2f39; --inp:#12141a; --edbg:#12141a; --ov:rgba(29,32,39,.94); --gutnum:#6b7384; --k:#7aa7ff; --s:#ff8a80; --n:#6fdc8c; --c:#7fbf7f; --g:#5fd0e6; --ebg:#4a2326; --ecol:#ff8a8a; --wbg:#4a3a14; --wcol:#ffd27a; --o-run:#7aa7ff; --o-err:#ff8a8a; --o-warn:#ffd27a; --o-ok:#6fdc8c; --mk:#c99a2e; color-scheme:dark; }
+:root[data-theme="dark"] .tb:not(.run):not(.stop) svg { filter:brightness(1.9); }
+.ovl { position:fixed; inset:0; z-index:60; overflow:auto; padding:10px; background-color:var(--bg); background-image:var(--bgimg); background-size:140px 140px; }
+.ovl.hide { display:none; }
+.ovl .win { max-width:1000px; margin:0 auto; }
+body.lock { overflow:hidden; }
+.bigbtn { width:100%; padding:14px; font-size:1.05rem; }
 .win{--mag:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236d6555' stroke-width='2.5' stroke-linecap='round'><circle cx='10' cy='10' r='6'/><path d='M15 15l6 6'/></svg>")}
 </style>
 </head>
@@ -193,14 +201,17 @@ main { max-width: 1000px; }
     </div>
     <div class="msg" id="tmsg"></div>
   </section>
+  <section class="card" id="load"><h2>1. Load your place</h2><button class="bigbtn" id="bLoad">📂 Load .rbxl file</button><div class="msg" id="upmsg"></div></section>
+  <section class="card" id="edcard"><h2>2. Edit scripts</h2><button class="bigbtn" id="bEditor" disabled>&lt;/&gt; Open Script Editor</button><div class="msg" id="edinfo">Load a place first.</div></section>
+  <div class="ovl hide" id="ov">
   <section class="win" id="win">
     <header class="titlebar">
       <div class="logo">&lt;/&gt;</div>
       <h1>Place Script Editor</h1>
       <span class="filetag" id="fileTag">No place opened</span>
+      <button class="tb" id="bClose">✕ Close</button>
     </header>
     <div class="toolbar" id="toolbar">
-      <button class="tb" id="bOpen"><svg viewBox="0 0 20 20"><path d="M2 5.5A1.5 1.5 0 0 1 3.5 4h4l1.7 2H16.5A1.5 1.5 0 0 1 18 7.5v7A1.5 1.5 0 0 1 16.5 16h-13A1.5 1.5 0 0 1 2 14.5z" fill="#f2a33a" stroke="#8a520a" stroke-width="1.2"/></svg>Open</button>
       <button class="tb" id="bSave" disabled><svg viewBox="0 0 20 20"><path d="M3 3h11l3 3v11H3z" fill="#4a4338"/><rect x="6" y="3" width="7" height="5" fill="#fffdf7"/><rect x="6" y="11" width="8" height="6" fill="#fffdf7"/></svg>Save</button>
       <button class="tb run" id="bRun" disabled><svg viewBox="0 0 20 20"><path d="M5 3l12 7-12 7z"/></svg>Run</button>
       <button class="tb stop" id="bStop" disabled><svg viewBox="0 0 20 20"><rect x="4" y="4" width="12" height="12" rx="2" fill="#6d6555"/></svg>Stop</button>
@@ -220,7 +231,7 @@ main { max-width: 1000px; }
           <input id="q" type="search" placeholder="Search scripts…" autocomplete="off" autocapitalize="off" spellcheck="false">
           <label><input type="checkbox" id="qcode"> Also search inside the code</label>
         </div>
-        <div class="tree" id="tree"><div class="note2">Tap <b>Open</b> to load a .rbxl place.</div></div>
+        <div class="tree" id="tree"><div class="note2">Load a place first.</div></div>
       </aside>
       <section class="pane codepane" id="pCode">
         <div class="findbar" id="fbar">
@@ -237,7 +248,7 @@ main { max-width: 1000px; }
           </div>
           <div class="empty" id="empty">
             <b>No script open</b>
-            <span id="emptyTxt">Tap <b>Open</b> and pick your .rbxl place, then choose a script in the Explorer.</span>
+            <span id="emptyTxt">Choose a script in the <b>Explorer</b> to start editing.</span>
           </div>
         </div>
         <div class="quick" id="quick">
@@ -253,9 +264,10 @@ main { max-width: 1000px; }
     </div>
     <section class="output">
       <div class="phead">Output <button class="clr" id="bClear2">Clear</button></div>
-      <div id="out"><div class="l-dim">Ready. Open a place, pick a script and press Run.</div></div>
+      <div id="out"><div class="l-dim">Ready. Pick a script, then press Run.</div></div>
     </section>
   </section>
+  </div>
   <input id="file" type="file" accept=".rbxl" class="hide">
 
   <section class="card hide" id="pub">
@@ -913,7 +925,7 @@ function clearOut() { $("out").textContent = ""; }
 $("bClear").onclick = clearOut; $("bClear2").onclick = clearOut;
 $("bHelp").onclick = () => {
   log("— Help —", "l-run");
-  log("Open: load your .rbxl place. Tap a script in the Explorer to edit it.", "l-dim");
+  log("Explorer: tap a script to edit it.", "l-dim");
   log("Run: checks the open script (even unsaved edits) for errors and common mistakes and prints them here. Tap a red or yellow line to jump to it.", "l-dim");
   log("Save: keeps your change in the place. Then use Publish below the editor to send it to Roblox.", "l-dim");
   log("Search box: finds scripts by name or path. Tick \"Also search inside the code\" to search every script's text.", "l-dim");
@@ -1133,7 +1145,7 @@ function buildTree() {
 function mkRow(depth) { const d = document.createElement("div"); d.className = "tr"; d.style.paddingLeft = (8 + depth * 14) + "px"; return d; }
 function renderTree() {
   const box = $("tree"); box.textContent = "";
-  if (!S) { box.innerHTML = '<div class="note2">Tap <b>Open</b> to load a .rbxl place.</div>'; return; }
+  if (!S) { box.innerHTML = '<div class="note2">Load a place first.</div>'; return; }
   buildTree();
   const frag = document.createDocumentFragment();
   (function walk(node, depth) {
@@ -1237,9 +1249,13 @@ function setPane(p, quiet) {
   document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.p === p));
 }
 document.querySelectorAll("#tabs button").forEach(b => b.onclick = () => setPane(b.dataset.p));
-$("bOpen").onclick = () => $("file").click();
+$("bLoad").onclick = () => $("file").click();
+const openEd = () => { $("ov").classList.remove("hide"); document.body.classList.add("lock"); if (!cur) setPane("exp"); $("ov").scrollTop = 0; };
+const closeEd = () => { $("ov").classList.add("hide"); document.body.classList.remove("lock"); };
+$("bEditor").onclick = openEd; $("bClose").onclick = closeEd;
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("ov").classList.contains("hide") && $("newp").classList.contains("hide")) closeEd(); });
 async function openFile(f) {
-  if (!f.name.toLowerCase().endsWith(".rbxl")) return log("Please pick a .rbxl file.", "l-err");
+  if (!f.name.toLowerCase().endsWith(".rbxl")) return say($("upmsg"), "Please pick a .rbxl file.", "err");
   if (dirty() && !confirm("The open script has unsaved changes. Open another place anyway?")) return;
   S = null; scripts = []; containers = []; cur = null; orig = ""; parentId = null; changed.clear(); cache.clear(); expanded.clear(); searchToken++;
   setCode(""); code.readOnly = true; $("q").value = "";
@@ -1247,16 +1263,16 @@ async function openFile(f) {
   $("playbox").textContent = ""; $("playbox").className = "msg hide"; show("pub", false);
   $("empty").classList.remove("hide"); $("emptyTxt").textContent = "Reading your place…";
   refreshButtons(); renderTree();
-  log("Reading " + f.name + "… this can take up to a minute for big places.", "l-dim");
+  log("Reading " + f.name + "…", "l-dim"); say($("upmsg"), "Reading place… this can take up to a minute for big places."); $("bEditor").disabled = true;
   $("fileTag").textContent = f.name;
   try {
     const d = await call("/api/scan", { method: "POST", headers: { "Content-Type": "application/octet-stream" }, body: f });
     lastFile = f; S = d.session; scripts = d.scripts; containers = d.containers || [];
-    log("✔ Opened " + f.name + ": " + scripts.length + " scripts.", "l-ok");
+    log("✔ Opened " + f.name + ": " + scripts.length + " scripts.", "l-ok"); say($("upmsg"), "Loaded " + f.name + " · " + scripts.length + " scripts", "ok"); $("bEditor").disabled = false; $("edinfo").textContent = "Ready. It opens in its own window.";
     $("emptyTxt").innerHTML = "Pick a script in the <b>Explorer</b> to start editing.";
     show("pub", true); $("changed").textContent = "No changes yet.";
     renderTree(); refreshButtons(); setPane("exp");
-  } catch (e) { log("✖ " + e.message, "l-err"); $("emptyTxt").textContent = "Tap Open and pick your .rbxl place."; $("fileTag").textContent = "No place opened"; }
+  } catch (e) { log("✖ " + e.message, "l-err"); say($("upmsg"), e.message, "err"); $("emptyTxt").textContent = "Load a place first."; $("fileTag").textContent = "No place opened"; }
   $("file").value = "";
 }
 $("file").addEventListener("change", () => { const f = $("file").files[0]; if (f) openFile(f); });
